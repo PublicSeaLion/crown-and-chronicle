@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Crown & Chronicle — Heroic Portrait Edition v9</title>
+<style>
+:root{--ink:#f4ead2;--muted:#a99f8c;--gold:#d9ad45;--gold2:#f0d37d;--panel:#171714;--line:#5a4930;--good:#7fc48d;--bad:#df7771}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);font-family:Georgia,"Times New Roman",serif;min-height:100vh;background:radial-gradient(circle at 50% -20%,#5a4630 0,#2b241c 23%,#141410 58%,#090a08 100%);background-attachment:fixed}body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.17;z-index:-1;background-image:repeating-linear-gradient(0deg,#fff1 0 1px,transparent 1px 5px),repeating-linear-gradient(90deg,#0002 0 1px,transparent 1px 7px);mix-blend-mode:soft-light}button{font:inherit}.hidden{display:none!important}#app{max-width:1490px;margin:auto;padding:18px}h1,h2,h3,p{margin-top:0}.title{letter-spacing:.045em}.subtle{color:var(--muted)}.panel{background:linear-gradient(180deg,#26231d 0,#171713 100%);border:1px solid #6e5734;border-radius:10px;box-shadow:0 14px 35px #0008,inset 0 1px 0 #f5d88918,inset 0 0 35px #0004;position:relative}.panel:after{content:"";position:absolute;inset:4px;border:1px solid #d7b15a12;border-radius:7px;pointer-events:none}#kingScreen{min-height:90vh;display:flex;flex-direction:column;justify-content:center}#kingScreen:before{content:"CROWN  •  CHRONICLE";align-self:center;color:#d6b66344;font-size:12px;letter-spacing:.5em;margin-bottom:18px}.king-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:16px}.king-card{padding:20px;cursor:pointer;transition:.2s;min-height:320px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 0,#9f7a3433,transparent 38%),linear-gradient(180deg,#2b271f,#151512)}.king-card:before{content:"";position:absolute;inset:-40% -60%;background:linear-gradient(115deg,transparent 42%,#ffe6a51a 50%,transparent 58%);transform:translateX(-45%);transition:.45s;pointer-events:none}.king-card:hover{transform:translateY(-5px);border-color:var(--gold2);box-shadow:0 20px 45px #000b,0 0 0 1px #d9ad4544 inset}.king-card:hover:before{transform:translateX(45%)}.king-symbol{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;font-size:38px;margin-bottom:15px;background:radial-gradient(circle,#463a28,#171511);border:2px solid #b28a43;box-shadow:0 0 0 5px #09080566,0 7px 15px #0008}.king-card h2{font-size:25px;margin:8px 0 3px;color:#f5e5bd}.tag{display:inline-block;padding:3px 8px;border-radius:999px;background:#d6b15b12;border:1px solid #d6b15b44;font-size:11px;margin:3px 4px 3px 0;color:#ead39a}.effect{margin-top:16px;padding:13px;border-radius:7px;background:linear-gradient(90deg,#d8ad4c10,#0002);border-left:3px solid var(--gold);line-height:1.4;font-family:Inter,Segoe UI,Arial,sans-serif;font-size:13px}.topbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;padding:10px 12px;margin-bottom:12px}.topbar:before{content:"♛";width:34px;height:34px;display:grid;place-items:center;color:#f0d37d;background:#0d0d0a;border:1px solid #806532;border-radius:50%;font-size:20px}.stat{background:#0d0e0b;border:1px solid #4b3c28;border-radius:6px;padding:7px 10px;font-family:Inter,Segoe UI,Arial,sans-serif;font-size:13px}.stat b{color:var(--gold2)}.spacer{flex:1}.primary,.secondary,.danger{border-radius:6px;padding:9px 13px;cursor:pointer;color:#f7edd7;font-weight:700;border:1px solid #ffffff16;transition:.15s;box-shadow:inset 0 1px 0 #fff2,0 4px 10px #0005}.primary{background:linear-gradient(#9d782e,#684a17);border-color:#c89b3c}.primary:hover{filter:brightness(1.15);transform:translateY(-1px)}.secondary{background:linear-gradient(#39352d,#22211c);border-color:#5b4e38}.secondary:hover{border-color:#9a7b48}.danger{background:linear-gradient(#783d3d,#4b2626);border-color:#9f5555}button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}.game-layout{display:grid;grid-template-columns:245px minmax(600px,1fr) 310px;gap:12px}.left,.right{padding:13px}.left h3,.right h3,.section-label b,.shop-head b{font-variant:small-caps;letter-spacing:.08em;color:#e6c779}.king-mini{padding:13px;background:radial-gradient(circle at top left,#8f6f3030,transparent 55%),#0f100d;border-radius:7px;margin-bottom:13px;border:1px solid #5c482a;min-height:100px}.king-mini .icon{width:45px;height:45px;display:grid;place-items:center;border-radius:50%;font-size:26px;float:left;margin-right:10px;border:1px solid #a98240;background:#262117}#traitList{display:flex;flex-direction:column;gap:7px}.trait-line{font-family:Inter,Segoe UI,Arial,sans-serif;font-size:12px;padding:8px 9px;background:#0d0e0b;border-radius:6px;border:1px solid #342c20;border-left:3px solid #554b3a}.trait-line.active{border-left-color:var(--gold);background:linear-gradient(90deg,#9f77391f,#0d0e0b);color:white}
+.trait-line.faction-trait{position:relative;cursor:help}
+.trait-line.faction-trait:after{content:"ⓘ";float:right;margin-left:7px;color:#d9ad45aa;font-size:11px}
+.faction-tooltip{
+  display:none;position:absolute;left:calc(100% + 10px);top:-4px;z-index:120;width:310px;padding:12px;
+  background:linear-gradient(180deg,#242118,#11120f);border:1px solid #9b7b3f;border-radius:8px;
+  box-shadow:0 12px 28px #000d,inset 0 1px 0 #f3d5811a;color:#eee4ce;text-align:left;
+  pointer-events:none
+}
+.faction-tooltip:before{
+  content:"";position:absolute;right:100%;top:19px;border:7px solid transparent;border-right-color:#9b7b3f
+}
+.faction-tooltip-title{display:flex;gap:8px;align-items:center;margin-bottom:8px;color:#f2d17e;font-size:13px}
+.faction-tooltip-title .trait-icon{font-size:18px}
+.faction-tooltip-sub{font-size:10px;color:#9f9688;margin-bottom:8px;line-height:1.35}
+.faction-tier{display:grid;grid-template-columns:46px 1fr;gap:8px;padding:7px 0;border-top:1px solid #ffffff10;font-size:11px;line-height:1.35}
+.faction-tier-count{font-weight:800;color:#b9ad96}
+.faction-tier.reached .faction-tier-count{color:#f2cd68}
+.faction-tier.reached{color:#f3ead7}
+.faction-tier.locked{color:#948c7e}
+.trait-line.tooltip-open .faction-tooltip{display:block;pointer-events:auto}
+@media (hover:hover) and (pointer:fine){
+  .trait-line.faction-trait:hover .faction-tooltip,
+  .trait-line.faction-trait:focus-within .faction-tooltip{display:block}
+}
+@media(max-width:1100px){
+  .faction-tooltip{left:0;top:calc(100% + 7px);width:min(340px,calc(100vw - 48px))}
+  .faction-tooltip:before{display:none}
+}
+.center{padding:13px}.section-label{display:flex;justify-content:space-between;align-items:end;margin:2px 2px 8px}.board-wrap{position:relative}#board{display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(4,90px);gap:5px;padding:9px;background:radial-gradient(circle at center,#2f2c22,#141511 68%);border-radius:9px;border:2px solid #665232;box-shadow:inset 0 0 40px #000c,0 8px 18px #0007}.cell{position:relative;border-radius:5px;min-width:0;overflow:hidden;cursor:pointer;border:1px solid #564c39;background-color:#25271f}.cell.enemy-zone{background:radial-gradient(circle at center,#4d2421,#251615)}.cell.player-zone{background:radial-gradient(circle at center,#25412d,#142219)}.cell:hover{outline:2px solid #c9a45577;outline-offset:-3px}.cell.locked{cursor:default}.zone-label{position:absolute;left:14px;z-index:4;font-family:Inter,Segoe UI,Arial,sans-serif;font-size:10px;letter-spacing:.2em;color:#fff7;pointer-events:none;text-transform:uppercase;text-shadow:0 2px 4px #000}.zone-label.enemy{top:14px}.zone-label.player{bottom:14px}.unit-token{position:absolute;inset:4px;border-radius:6px;padding:5px;border:1px solid #a98a5259;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;user-select:none;background:radial-gradient(circle at 28% 28%,#5f5746,#2a2c27 58%,#171814 100%);box-shadow:inset 0 0 16px #0008,0 3px 8px #0007;overflow:hidden}.unit-token:before{content:"";position:absolute;inset:0;border-top:3px solid var(--rarity,#9b8e72);pointer-events:none}.unit-token.enemy{background:radial-gradient(circle at 28% 28%,#71413d,#3c2321 60%,#1b1110)}.unit-token.selected{outline:2px solid #f1cf70;box-shadow:0 0 15px #d9ad4577,inset 0 0 15px #0008}.unit-token.casting{box-shadow:0 0 0 2px #b6d5ff,0 0 25px #76aaff99,inset 0 0 20px #0008}.unit-top{display:flex;align-items:flex-start;gap:6px;min-width:0;position:relative;z-index:2}.portrait{flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:900;color:#f7ead0;border:1px solid #d3b66e88;background:radial-gradient(circle at 35% 30%,var(--civ-light,#7b7465),var(--civ-dark,#302e29) 62%,#12110f 100%);box-shadow:0 0 0 2px #09090899,0 2px 5px #0009}.unit-copy{min-width:0}.unit-name{font-family:Inter,Segoe UI,Arial,sans-serif;font-size:10.5px;font-weight:800;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px #000}.unit-meta{font-family:Inter,Segoe UI,Arial,sans-serif;font-size:9px;color:#c8c0b2;margin-top:2px}.unit-bottom{position:relative;z-index:2}.stars{color:#ffd56b;font-size:10px}.unit-cost-mini{float:right;color:#e8cf88;font-size:9px}.hpbar,.manabar{background:#050604;border-radius:3px;overflow:hidden;border:1px solid #000}.hpbar{height:6px}.manabar{height:4px;margin-top:2px}.hpfill{height:100%;background:linear-gradient(90deg,#3e944f,#84d482)}.manafill{height:100%;background:linear-gradient(90deg,#386caa,#7dc6f3)}#bench{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}.bench-slot{height:82px;border:1px dashed #6b593d;border-radius:6px;background:linear-gradient(#11120f,#0a0b09);position:relative;cursor:pointer;box-shadow:inset 0 0 15px #0008}.shop{padding:13px;margin-top:12px}.shop-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}#shopCards{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.shop-card{--rarity:#8f8876;min-height:175px;background:linear-gradient(180deg,#2b2922,#12130f);border:1px solid #554832;border-radius:8px;padding:11px;cursor:pointer;transition:.17s;position:relative;overflow:hidden;box-shadow:inset 0 0 20px #0008}.shop-card:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--rarity)}.shop-card:hover{border-color:var(--rarity);transform:translateY(-3px);box-shadow:0 9px 18px #0009,inset 0 0 20px #0005}.shop-card.sold{opacity:.18;cursor:default;transform:none}.shop-portrait{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:15px;font-weight:900;margin:2px 0 9px;background:radial-gradient(circle at 35% 30%,var(--civ-light,#786f60),var(--civ-dark,#2d2a24) 60%,#0c0c0a);border:2px solid var(--rarity);box-shadow:0 0 0 3px #070805,0 5px 12px #0008}.cost{position:absolute;right:8px;top:9px;background:#080906e6;color:#f0d37d;padding:4px 7px;border-radius:999px;font-family:Inter,Segoe UI,Arial,sans-serif;font-size:12px;font-weight:800;border:1px solid #7b6336}.shop-card h4{margin:0 30px 6px 0;font-size:15px;color:#f4e5c6}.shop-card p{font-family:Inter,Segoe UI,Arial,sans-serif;font-size:10.5px;color:#bbb2a3;line-height:1.3;margin:7px 0}.civ{font-family:Inter,Segoe UI,Arial,sans-serif;font-size:10px}.Arthurian{color:#c8b36f}.Greek{color:#97b8e8}.Roman{color:#e79b82}.Celtic{color:#8ad3db}.Japanese{color:#e9a4ba}.French{color:#9cc0ff}.Norse{color:#a8d2e8}.rarity-1{--rarity:#a29b88}.rarity-2{--rarity:#6bb875}.rarity-3{--rarity:#5f8ed5}.rarity-4{--rarity:#a06bd0}.rarity-5{--rarity:#e3ad43}.civ-Arthurian{--civ-light:#8c7846;--civ-dark:#40331d}.civ-Greek{--civ-light:#6685b4;--civ-dark:#243448}.civ-Roman{--civ-light:#a85f4c;--civ-dark:#4b2721}.civ-Celtic{--civ-light:#558d95;--civ-dark:#243f43}.civ-Japanese{--civ-light:#ad627c;--civ-dark:#4b2934}.civ-French{--civ-light:#6d8ec6;--civ-dark:#28395d}.civ-Norse{--civ-light:#6c91a7;--civ-dark:#273a46}.civ-Legendary{--civ-light:#b58b43;--civ-dark:#493517}.right h3{margin-bottom:7px}#selectedPanel{min-height:192px;padding:11px;background:radial-gradient(circle at top left,#8b6b2b18,transparent 50%),#0d0e0b;border-radius:7px;border:1px solid #433722;margin-bottom:10px;font-family:Inter,Segoe UI,Arial,sans-serif;font-size:12px}.selected-hero{display:flex;gap:10px;align-items:center;margin-bottom:10px}.selected-hero .portrait{width:52px;height:52px;font-size:14px}.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:9px 0}.mini-stat{background:#171713;border:1px solid #342c20;border-radius:5px;padding:6px;text-align:center;color:#d7cbb6}.mini-stat b{display:block;color:#f1d282;font-size:13px}.log{height:225px;overflow:auto;background:#090a08;border:1px solid #39301f;border-radius:6px;padding:9px;font-family:Inter,Segoe UI,Arial,sans-serif;font-size:11px;line-height:1.45}.log div{margin-bottom:6px;color:#bbb4a7;border-bottom:1px solid #ffffff08;padding-bottom:4px}.log .win{color:var(--good)}.log .lose{color:var(--bad)}.log .gold{color:#f0cb69}.tip{font-family:Inter,Segoe UI,Arial,sans-serif;font-size:11px;line-height:1.5;color:#a79f91;margin-top:10px}#battleBanner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;pointer-events:none;font-size:52px;text-shadow:0 5px 16px #000;color:#f8e7bd}#battleBanner span{background:linear-gradient(90deg,#0a0a07ee,#2e2517ee,#0a0a07ee);padding:14px 28px;border-radius:3px;border-top:1px solid #d1ad5a;border-bottom:1px solid #d1ad5a;letter-spacing:.08em}#gameOver{position:fixed;inset:0;background:#080804ed;display:flex;align-items:center;justify-content:center;z-index:50}.gameover-box{max-width:520px;padding:32px;text-align:center}.rulebook{margin-top:12px;padding:12px}details summary{cursor:pointer;font-weight:700;color:#e5c879}details p,details li{font-family:Inter,Segoe UI,Arial,sans-serif;font-size:12px;color:#b7ae9e;line-height:1.5}.scout{padding:9px;background:#0c0d0a;border-radius:7px;border:1px solid #3c3222;margin-bottom:12px}.scout-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}.scout-units{display:flex;flex-wrap:wrap;gap:5px}.scout-chip{font-family:Inter,Segoe UI,Arial,sans-serif;font-size:9px;padding:4px 6px;border-radius:5px;background:#1c1914;border:1px solid #4b3f2c}#armory{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.relic-row{display:flex;gap:8px;align-items:center;padding:8px;background:#0d0e0b;border-radius:6px;border:1px solid #403522;cursor:pointer}.relic-row:hover{border-color:var(--gold)}.relic-icon{font-size:22px;width:28px;text-align:center}.relic-info{font-family:Inter,Segoe UI,Arial,sans-serif;font-size:10.5px;line-height:1.3}.item-badge{font-size:10px;background:#0a0905;border:1px solid #d2a74f88;color:#ffe294;padding:1px 4px;border-radius:4px;margin-left:3px}#floatLayer{position:absolute;inset:9px;z-index:8;pointer-events:none}.float-num{position:absolute;transform:translate(-50%,-50%);font-family:Inter,Segoe UI,Arial,sans-serif;font-size:14px;font-weight:900;text-shadow:0 2px 5px #000;animation:floatUp .7s ease-out forwards}.float-num.damage{color:#ffd1c9}.float-num.crit{color:#ffe06e;font-size:18px}.float-num.heal{color:#8deb9e}.float-num.cast{color:#bad7ff;font-size:11px;letter-spacing:.08em}@keyframes floatUp{0%{opacity:0;transform:translate(-50%,-10%)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-140%)}}.relic-modal{position:fixed;inset:0;background:#080804ef;z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}.relic-choice-box{width:min(900px,95vw);padding:25px;text-align:center}.relic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}.relic-card{padding:19px;background:radial-gradient(circle at top,#8c682525,transparent 48%),#11120e;border:1px solid #5b492c;border-radius:8px;cursor:pointer;transition:.15s;min-height:205px}.relic-card:hover{transform:translateY(-4px);border-color:#e0b753;box-shadow:0 12px 25px #0009}.relic-card .big-icon{font-size:45px}.relic-card h3{margin:8px 0;color:#efd598}.combat-speed{min-width:72px}
+.king-symbol{display:none!important}
+.portrait.large{width:70px;height:70px}
+.portrait.shop{width:60px;height:60px;margin:2px 0 9px}
+.portrait-class{position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:#090a08;border:1px solid #d3b66e;color:#f0d37d;font-size:9px}
+.trait-title{display:flex;align-items:center;gap:7px}.trait-icon{width:23px;height:23px;border-radius:50%;display:grid;place-items:center;background:#1b1812;border:1px solid #655333;color:#e6c779;font-size:12px}
+.unit-lore{margin-top:8px;padding-top:8px;border-top:1px solid #ffffff0d;color:#a9a090;font-style:italic;line-height:1.45}
+.shop-lore{margin-top:7px;padding-top:6px;border-top:1px solid #ffffff0b;color:#8f887b!important;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.king-mini-portrait{width:54px;height:54px;float:left;margin:0 10px 7px 0}
+.king-mini-portrait .king-portrait{width:54px;height:54px;margin:0;border-width:1px;box-shadow:none}
+
+@media(max-width:1100px){.game-layout{grid-template-columns:1fr}.left,.right{display:grid;grid-template-columns:1fr 1fr;gap:10px}.king-grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){#app{padding:8px}.king-grid{grid-template-columns:1fr}.left,.right{display:block}.game-layout{display:block}.left,.center,.right{margin-bottom:8px}#board{grid-template-rows:repeat(4,72px);gap:3px;padding:5px}.portrait{width:29px;height:29px}.unit-name{font-size:9px}#shopCards{grid-template-columns:1fr 1fr}.shop-card{min-height:165px}#bench{grid-template-columns:repeat(4,1fr)}.relic-grid{grid-template-columns:1fr}}
+</style>
+
+<style id="v6-portrait-polish">
+.king-card{appearance:none;width:100%;color:inherit;text-align:left}
+.king-portrait{width:112px;height:112px;border-radius:50%;margin:0 auto 12px;overflow:hidden;position:relative;background:radial-gradient(circle at 35% 25%,var(--civ-light,#8c7846),var(--civ-dark,#40331d) 68%,#0b0b08);border:2px solid #d0aa55;box-shadow:0 0 0 6px #09080588,0 12px 25px #0009}
+.king-portrait svg,.portrait svg{width:100%;height:100%;display:block}
+.king-lore{font-family:Inter,Segoe UI,Arial,sans-serif;font-size:11px;line-height:1.45;color:#c4baa8;margin-top:9px;min-height:47px}
+.king-choose{margin-top:14px;padding-top:10px;border-top:1px solid #735d3644;color:#f1d27b;font-family:Inter,Segoe UI,Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.portrait{overflow:hidden;position:relative}
+.portrait.shop{width:60px;height:60px;margin:2px 0 9px;border:2px solid var(--rarity,#a29b88);box-shadow:0 0 0 3px #070805,0 5px 12px #0008}
+.selected-hero .portrait.large{width:70px;height:70px}
+@media(max-width:720px){.king-portrait{width:94px;height:94px}.king-lore{min-height:0}}
+</style>
+</head>
+<body>
+<div id="app">
+<section id="kingScreen">
+  <div style="text-align:center;margin-bottom:24px">
+    <div class="subtle" style="letter-spacing:.18em;text-transform:uppercase">Original browser autobattler • Expanded Fate-adjacent roster</div>
+    <h1 class="title" style="font-size:52px;margin-bottom:8px">Crown & Chronicle</h1>
+    <p class="subtle">Choose a sovereign. Recruit heroes of history and legend. Forge synergies, equip relics, and write an impossible chronicle.</p>
+  </div>
+  <div id="kingGrid" class="king-grid"></div>
+</section>
+
+<section id="gameScreen" class="hidden">
+  <div class="topbar panel">
+    <div class="stat">Round <b id="roundStat">1</b></div>
+    <div class="stat">❤️ <b id="hpStat">100</b></div>
+    <div class="stat">🪙 <b id="goldStat">10</b></div>
+    <div class="stat">Level <b id="levelStat">3</b> <span class="subtle" id="xpStat">0/6 XP</span></div>
+    <div class="stat">Army <b id="armyStat">0/3</b></div>
+    <div class="stat">Streak <b id="streakStat">—</b></div>
+    <div class="spacer"></div>
+    <button id="speedBtn" class="secondary combat-speed">1× Speed</button>
+    <button id="xpBtn" class="secondary">Buy 4 XP — 4g</button>
+    <button id="battleBtn" class="primary">Start Battle</button>
+  </div>
+
+  <div class="game-layout">
+    <aside class="left panel">
+      <div id="kingMini" class="king-mini"></div>
+      <h3>Army Traits</h3><div class="subtle" style="font-family:Inter,Segoe UI,Arial,sans-serif;font-size:10px;margin:-3px 0 8px">Hover or click a faction for all bonus tiers. Duplicate heroes count only once.</div>
+      <div id="traitList"></div>
+      <p class="tip">Click a unit, then click an empty bench or green battlefield tile to move it. Your level is your maximum army size.</p>
+    </aside>
+
+    <main class="center panel">
+      <div class="section-label"><b>Battlefield</b><span id="phaseText" class="subtle">Planning Phase</span></div>
+      <div class="board-wrap">
+        <div class="zone-label enemy">Enemy deployment</div>
+        <div class="zone-label player">Your deployment</div>
+        <div id="battleBanner" class="hidden"><span></span></div>
+        <div id="floatLayer"></div>
+        <div id="board"></div>
+      </div>
+
+      <div class="section-label" style="margin-top:12px"><b>Bench</b><span class="subtle">8 slots</span></div>
+      <div id="bench"></div>
+    </main>
+
+    <aside class="right panel">
+      <h3>Selected Unit</h3>
+      <div id="selectedPanel"><span class="subtle">Select one of your units to inspect it.</span></div>
+      <button id="sellBtn" class="danger" disabled>Sell Selected</button>
+      <h3 style="margin-top:16px">Enemy Scout</h3>
+      <div id="enemyScout" class="scout"></div>
+      <h3>Relic Armory</h3>
+      <div id="armory"></div>
+      <h3 style="margin-top:16px">Chronicle</h3>
+      <div id="log" class="log"></div>
+    </aside>
+  </div>
+
+  <section class="shop panel">
+    <div class="shop-head">
+      <div><b>Recruitment</b> <span class="subtle">— buy 3 matching stars to upgrade</span></div>
+      <div>
+        <button id="lockBtn" class="secondary">🔓 Lock</button>
+        <button id="rerollBtn" class="secondary">Reroll — 2g</button>
+      </div>
+    </div>
+    <div id="shopCards"></div>
+  </section>
+
+  <section class="rulebook panel">
+    <details>
+      <summary>Rules & controls</summary>
+      <p><b>Goal:</b> survive as many rounds as possible. You lose health when the enemy wins a battle.</p>
+      <ul>
+        <li>Buy units from the shop. Bought units go to your bench.</li>
+        <li>Select a unit and click a green tile to deploy it. Your level controls your army-size cap.</li>
+        <li>Three identical 1★ units automatically merge into a 2★. Three 2★ units merge into a 3★.</li>
+        <li>Rerolls cost 2 gold. Buying 4 XP costs 4 gold. Interest pays +1 gold per 10 saved, up to +5.</li>
+        <li>Only unique unit names on the battlefield activate traits. Duplicate copies do not add extra trait progress, and King bonuses never alter trait counts. Your King permanently changes your army's rules.</li>
+        <li>The Enemy Scout shows the army you will actually fight, so you can reposition before combat.</li>
+        <li>Every 3 rounds you choose a Relic. Select a unit, then click a Relic in your Armory to equip it.</li>
+        <li>Win/loss streaks grant up to +3 bonus gold each round.</li>
+        <li>Combat is automatic. Units move, basic attack, gain mana, and cast their named ability at 100 mana.</li>
+      </ul>
+    </details>
+  </section>
+</section>
+</div>
+
+<div id="relicChoice" class="relic-modal hidden">
+  <div class="relic-choice-box panel">
+    <div class="subtle" style="letter-spacing:.14em;text-transform:uppercase">Spoils of History</div>
+    <h1 class="title">Choose a Relic</h1>
+    <p class="subtle">Add one permanent relic to your armory. Equip it to any unit during planning.</p>
+    <div id="relicChoices" class="relic-grid"></div>
+  </div>
+</div>
+
+<div id="gameOver" class="hidden">
+  <div class="gameover-box panel">
+    <h1 class="title">Your Chronicle Ends</h1>
+    <p id="gameOverText"></p>
+    <button class="primary" onclick="location.reload()">Choose Another King</button>
+  </div>
+</div>
+
+<script>
+const KINGS = [
+ {id:"arthur",name:"King Arthur",civ:"Arthurian",role:"Saber",era:"Britannic Legend",icon:"⚔️",lore:"The once and future king, gathering champions beneath a single banner.",
+  effect:"The Round Table",desc:"Your highest-cost deployed unit becomes the Champion: +250 Health and +15% damage. Units adjacent to 2+ allies gain +15 Armor."},
+ {id:"alexander",name:"Alexander the Great",civ:"Greek",role:"Rider",era:"Macedon • 356–323 BCE",icon:"🦁",lore:"A conqueror whose ambition carried a Macedonian army across the known world.",
+  effect:"Momentum of Conquest",desc:"All deployed units gain +12% Attack Speed and +15% movement speed. Win a round: gain +1 bonus gold."},
+ {id:"jeanne",name:"Jeanne d’Arc",civ:"French",role:"Saber",era:"France • c.1412–1431",icon:"🚩",lore:"A battlefield standard of conviction who turns a mixed host into one army.",
+  effect:"Banner of Resolve",desc:"All deployed units begin combat with +20 Mana and an 80-point shield. When you lose a round, crown damage is reduced by 2."},
+ {id:"gilgamesh",name:"Gilgamesh",civ:"Legendary",role:"Archer",era:"King of Uruk • Epic Legend",icon:"✨",lore:"Ancient king of epic tradition, surrounded by the wealth and prestige of Uruk.",
+  effect:"Treasury of Heroes",desc:"Units holding a relic gain +150 Health and +15% damage. Units without a relic gain +10 Armor."},
+ {id:"medb",name:"Queen Medb",civ:"Celtic",role:"Rider",era:"Connacht • Celtic Legend",icon:"👑",lore:"Queen of Connacht, commanding through pride, charisma, and relentless desire for victory.",
+  effect:"Royal Favor",desc:"Your two highest-cost deployed units gain +15% damage and 12% lifesteal."},
+ {id:"romulus",name:"Romulus",civ:"Roman",role:"Lancer",era:"Founder of Rome • Mythic Antiquity",icon:"🏛️",lore:"Legendary founder of Rome, turning disciplined warriors into the beginning of an empire.",
+  effect:"Foundations of Empire",desc:"Units in your front deployment row gain +25 Armor. Units in your back deployment row gain +12% Attack Speed."},
+ {id:"yamato",name:"Yamato Takeru",civ:"Japanese",role:"Saber",era:"Japanese Legend",icon:"🗡️",lore:"A wandering warrior-prince of Japanese legend, remembered for daring campaigns and deadly skill.",
+  effect:"Wandering Blade",desc:"Units with no adjacent ally gain +20% critical-hit chance and +10% damage."}
+];
+
+const UNITS = [
+ {name:"Mordred",cost:1,civ:"Arthurian",cls:"Saber",hp:700,atk:54,armor:32,range:1,as:.82,ability:"Rebellious Guard",abilityType:"shield",abilityText:"Raises a defiant barrier, gaining a large temporary shield."},
+ {name:"Gareth",cost:1,civ:"Arthurian",cls:"Lancer",hp:650,atk:58,armor:28,range:1,as:.94,ability:"Young Knight's Charge",abilityType:"dashStrike",abilityText:"Rushes a distant opponent with fearless momentum."},
+ {name:"Tristan",cost:2,civ:"Arthurian",cls:"Archer",hp:540,atk:66,armor:18,range:3,as:1.02,ability:"Harp of Sorrow",abilityType:"farStrike",abilityText:"Fires a mournful shot at the farthest enemy for heavy damage."},
+ {name:"Percival",cost:3,civ:"Arthurian",cls:"Lancer",hp:830,atk:76,armor:34,range:1,as:.90,ability:"Grailward",abilityType:"shieldAura",abilityText:"Raises a protective ward and grants nearby allies Armor."},
+ {name:"Gawain",cost:3,civ:"Arthurian",cls:"Saber",hp:860,atk:74,armor:38,range:1,as:.82,ability:"Solar Oath",abilityType:"shieldAura",abilityText:"Gains a shield and grants nearby allies Armor."},
+ {name:"Lancelot",cost:4,civ:"Arthurian",cls:"Berserker",hp:860,atk:94,armor:28,range:1,as:.95,ability:"Knight of Frenzy",abilityType:"frenzy",abilityText:"Enters a frenzy, gaining a huge shield and Attack Speed for 5 seconds."},
+
+ {name:"Atalanta",cost:1,civ:"Greek",cls:"Archer",hp:520,atk:56,armor:18,range:3,as:1.00,ability:"Hunter's Volley",abilityType:"farStrike",abilityText:"Fires a powerful shot at the farthest enemy for 220% Attack damage."},
+ {name:"Medusa",cost:2,civ:"Greek",cls:"Rider",hp:710,atk:68,armor:24,range:1,as:.96,ability:"Mystic Rush",abilityType:"dashStrike",abilityText:"Rushes a distant enemy and strikes for bonus damage."},
+ {name:"Hector",cost:2,civ:"Greek",cls:"Lancer",hp:760,atk:70,armor:30,range:1,as:.88,ability:"Defender of Troy",abilityType:"stunStrike",abilityText:"Meets the enemy with a punishing spear strike and brief stun."},
+ {name:"Jason",cost:3,civ:"Greek",cls:"Saber",hp:700,atk:69,armor:26,range:1,as:.88,ability:"Argonaut Command",abilityType:"teamHaste",abilityText:"Rallies his allies, granting the army Attack Speed for 5 seconds."},
+ {name:"Heracles",cost:4,civ:"Greek",cls:"Berserker",hp:1080,atk:90,armor:34,range:1,as:.84,ability:"God Hand",abilityType:"healStrike",abilityText:"Smashes his target for heavy damage and heals from the impact."},
+ {name:"Achilles",cost:5,civ:"Greek",cls:"Lancer",hp:980,atk:106,armor:36,range:1,as:1.06,ability:"Swift Heel",abilityType:"tripleStrike",abilityText:"Unleashes three lightning-fast strikes."},
+
+ {name:"Julius Caesar",cost:1,civ:"Roman",cls:"Saber",hp:690,atk:46,armor:34,range:1,as:.76,ability:"Imperial Stand",abilityType:"shield",abilityText:"Raises a commander's guard, gaining a large temporary barrier."},
+ {name:"Spartacus",cost:2,civ:"Roman",cls:"Berserker",hp:760,atk:68,armor:24,range:1,as:.88,ability:"Revolt",abilityType:"healStrike",abilityText:"Strikes for bonus damage and heals for part of the damage dealt."},
+ {name:"Nero Claudius",cost:3,civ:"Roman",cls:"Saber",hp:800,atk:74,armor:32,range:1,as:.90,ability:"Golden Theater",abilityType:"teamHaste",abilityText:"Inspires nearby allies, granting the whole army Attack Speed for 5 seconds."},
+ {name:"Caligula",cost:4,civ:"Roman",cls:"Berserker",hp:930,atk:88,armor:26,range:1,as:.94,ability:"Imperial Madness",abilityType:"aoe",abilityText:"Lets out a savage cry that damages nearby enemies."},
+
+ {name:"Cu Chulainn",cost:1,civ:"Celtic",cls:"Lancer",hp:620,atk:60,armor:22,range:1,as:1.00,ability:"Warping Thorn",abilityType:"stunStrike",abilityText:"Lunges and stuns his target with a cursed thrust."},
+ {name:"Diarmuid ua Duibhne",cost:2,civ:"Celtic",cls:"Lancer",hp:710,atk:72,armor:24,range:1,as:1.02,ability:"Twin Spear Dance",abilityType:"doubleStrike",abilityText:"Strikes twice in rapid succession and gains a small shield."},
+ {name:"Fergus mac Róich",cost:2,civ:"Celtic",cls:"Saber",hp:790,atk:72,armor:30,range:1,as:.86,ability:"Caladbolg Swing",abilityType:"aoe",abilityText:"Sweeps his blade in a crushing arc around himself."},
+ {name:"Fionn mac Cumhaill",cost:3,civ:"Celtic",cls:"Archer",hp:650,atk:76,armor:22,range:3,as:.96,ability:"Salmon's Insight",abilityType:"lineVolley",abilityText:"Calls out a deadly volley that hits up to three enemies."},
+ {name:"Boudica",cost:3,civ:"Celtic",cls:"Rider",hp:800,atk:69,armor:32,range:1,as:.92,ability:"Iceni Rally",abilityType:"teamHaste",abilityText:"Rallies the army into a furious counterattack."},
+ {name:"Scáthach",cost:4,civ:"Celtic",cls:"Caster",hp:690,atk:82,armor:24,range:2,as:.92,ability:"Shadow Teaching",abilityType:"weakenAoe",abilityText:"Wounds and weakens several nearby enemies."},
+
+ {name:"Sasaki Kojiro",cost:1,civ:"Japanese",cls:"Saber",hp:580,atk:62,armor:20,range:1,as:1.06,ability:"Swallow Cut",abilityType:"tripleStrike",abilityText:"Executes three elegant cuts in a heartbeat."},
+ {name:"Ushiwakamaru",cost:1,civ:"Japanese",cls:"Rider",hp:610,atk:58,armor:22,range:1,as:.98,ability:"Swift Cavalry",abilityType:"dashStrike",abilityText:"Charges a distant foe and deals bonus damage."},
+ {name:"Benkei",cost:2,civ:"Japanese",cls:"Lancer",hp:790,atk:64,armor:36,range:1,as:.80,ability:"Bridge Guardian",abilityType:"shield",abilityText:"Plants his weapon and gains a massive temporary barrier."},
+ {name:"Tomoe Gozen",cost:2,civ:"Japanese",cls:"Archer",hp:620,atk:70,armor:20,range:3,as:1.00,ability:"Fiery Fan Shot",abilityType:"farStrike",abilityText:"Takes aim at the farthest enemy for a high-damage shot."},
+ {name:"Oda Nobunaga",cost:3,civ:"Japanese",cls:"Archer",hp:650,atk:72,armor:22,range:3,as:.94,ability:"Three-Line Volley",abilityType:"lineVolley",abilityText:"Orders a volley that damages up to three enemies."},
+ {name:"Miyamoto Musashi",cost:4,civ:"Japanese",cls:"Saber",hp:820,atk:96,armor:28,range:1,as:1.08,ability:"Niten Ichi-ryū",abilityType:"tripleStrike",abilityText:"Unleashes three rapid sword strikes."},
+
+ {name:"Astolfo",cost:1,civ:"French",cls:"Rider",hp:590,atk:58,armor:20,range:1,as:1.02,ability:"Cheerful Charge",abilityType:"dashStrike",abilityText:"Dashes into a distant foe with a sudden mounted strike."},
+ {name:"Marie Antoinette",cost:2,civ:"French",cls:"Rider",hp:650,atk:55,armor:24,range:2,as:.96,ability:"Royal Procession",abilityType:"teamHaste",abilityText:"Inspires the courtly host, granting allies Attack Speed."},
+ {name:"Gilles de Rais",cost:2,civ:"French",cls:"Caster",hp:680,atk:70,armor:20,range:2,as:.88,ability:"Forbidden Rite",abilityType:"weakenAoe",abilityText:"Invokes a cruel rite that damages and weakens nearby enemies."},
+ {name:"Roland",cost:3,civ:"French",cls:"Saber",hp:840,atk:78,armor:34,range:1,as:.86,ability:"Durandal's Oath",abilityType:"shieldAura",abilityText:"Raises a heroic shield and protects nearby allies."},
+ {name:"Napoleon",cost:4,civ:"French",cls:"Archer",hp:720,atk:92,armor:24,range:3,as:.94,ability:"Grand Battery",abilityType:"lineVolley",abilityText:"Unleashes a devastating ranged barrage across several enemies."},
+ {name:"Charlemagne",cost:5,civ:"French",cls:"Saber",hp:970,atk:104,armor:36,range:1,as:.98,ability:"Twelve Paladins",abilityType:"teamHaste",abilityText:"Galvanizes the whole army, granting Attack Speed for 5 seconds."},
+
+ {name:"Hildr",cost:1,civ:"Norse",cls:"Lancer",hp:610,atk:60,armor:24,range:1,as:.98,ability:"Valkyrie's Descent",abilityType:"dashStrike",abilityText:"Descends on a distant foe with a swift spear strike."},
+ {name:"Beowulf",cost:2,civ:"Norse",cls:"Berserker",hp:830,atk:76,armor:24,range:1,as:.88,ability:"Monster Breaker",abilityType:"healStrike",abilityText:"Crushes his target with heroic force and recovers Health."},
+ {name:"Brynhildr",cost:3,civ:"Norse",cls:"Lancer",hp:770,atk:82,armor:28,range:1,as:.96,ability:"Valkyrie's Passion",abilityType:"stunStrike",abilityText:"Pierces her target for heavy damage and briefly stuns it."},
+ {name:"Sigurd",cost:4,civ:"Norse",cls:"Saber",hp:850,atk:98,armor:32,range:1,as:1.00,ability:"Dragon-Slayer",abilityType:"tripleStrike",abilityText:"Strikes three times with disciplined, dragon-slaying force."}
+];
+
+const TRAITS = {
+ Arthurian:{breaks:[2,4,6],desc:["Arthurian units adjacent to an ally gain +10% damage and +10 Armor.","Adjacency bonus becomes +25% damage and +25 Armor.","Arthurian units gain an additional 180 starting shield."]},
+ Greek:{breaks:[2,4,6],desc:["Greek units gain +15 Armor.","Greek units gain +35 Armor.","Greek units also gain +15% damage."]},
+ Roman:{breaks:[2,4],desc:["Roman units begin combat with +20 Mana.","Roman units begin combat with +40 Mana and gain +10 Mana on cast."]},
+ Celtic:{breaks:[2,4,6],desc:["Celtic units gain up to +25% damage as Health falls.","Celtic units gain up to +55% damage as Health falls.","Celtic units gain 15% lifesteal below half Health."]},
+ Japanese:{breaks:[2,4,6],desc:["Japanese units gain 15% critical-hit chance.","Japanese units gain 35% critical-hit chance.","Critical hits deal additional damage."]},
+ French:{breaks:[2,4,6],desc:["French units gain +12% damage.","French units gain +25% damage and +20 starting Mana.","French units gain +20 Armor and +15% Attack Speed."]},
+ Norse:{breaks:[2,4],desc:["Norse units gain +12% Attack Speed and 8% lifesteal.","Norse units gain +25% Attack Speed and 18% lifesteal."]},
+ Saber:{breaks:[2,4],desc:["Sabers gain +20 Armor and a 100 shield.","Sabers gain +45 Armor and a 240 shield."]},
+ Lancer:{breaks:[2,4],desc:["Lancers gain +4% Attack Speed per attack, stacking 6 times.","Gain +7% per attack, stacking 8 times."]},
+ Berserker:{breaks:[2,4],desc:["Berserkers gain 12% lifesteal.","Berserkers gain 25% lifesteal and +15% damage."]},
+ Caster:{breaks:[2,4],desc:["All allies gain +20 starting Mana.","All allies gain +40 starting Mana and +10 Mana per cast."]},
+ Rider:{breaks:[2,4],desc:["Riders start with +20% Attack Speed for 5 sec.","Riders start with +45% Attack Speed and a 120 shield."]},
+ Archer:{breaks:[2,4],desc:["Archers deal +12% basic-attack damage.","Archers deal +28% basic-attack damage."]}
+};
+
+const TRAIT_ICONS = {
+ Arthurian:"♜",Greek:"🏺",Roman:"🏛",Celtic:"☘",Japanese:"⛩",French:"⚜",Norse:"ᚱ",
+ Saber:"⚔",Lancer:"🔱",Archer:"🏹",Rider:"🐎",Caster:"✦",Berserker:"🪓"
+};
+
+const FACTION_TRAITS = new Set(["Arthurian","Greek","Roman","Celtic","Japanese","French","Norse"]);
+function factionTooltipHTML(name,count){
+ const trait=TRAITS[name];
+ if(!trait||!FACTION_TRAITS.has(name))return "";
+ const tiers=trait.breaks.map((needed,i)=>{
+   const reached=count>=needed;
+   return `<div class="faction-tier ${reached?"reached":"locked"}">
+     <div class="faction-tier-count">${needed} units</div>
+     <div>${esc(trait.desc[i])}</div>
+   </div>`;
+ }).join("");
+ return `<div class="faction-tooltip" role="tooltip">
+   <div class="faction-tooltip-title"><span class="trait-icon">${traitIcon(name)}</span><b>${name} faction</b></div>
+   <div class="faction-tooltip-sub">Field matching units to unlock stronger faction bonuses. Gold tiers are active now.</div>
+   ${tiers}
+ </div>`;
+}
+
+const LORE = {
+ "Mordred":"Rebellious knight forever tied to the breaking of Camelot.",
+ "Gareth":"Young Round Table knight remembered for courage and courtesy.",
+ "Tristan":"Knight and tragic hero whose legend is bound to music and sorrow.",
+ "Percival":"Questing knight associated with the mysteries of the Grail.",
+ "Gawain":"Arthurian champion whose strength is linked in legend to the sun.",
+ "Lancelot":"Peerless knight whose greatness and divided loyalties helped shape Camelot's tragedy.",
+ "Atalanta":"Swift huntress of Greek legend, famed for unmatched speed and archery.",
+ "Medusa":"The most famous of the Gorgons, a monster and tragic figure of Greek myth.",
+ "Hector":"Prince of Troy and its greatest defender in the Iliad.",
+ "Jason":"Leader of the Argonauts and captain of the quest for the Golden Fleece.",
+ "Heracles":"Mighty Greek hero remembered for the Twelve Labors.",
+ "Achilles":"Supreme warrior of the Iliad, feared for speed and martial excellence.",
+ "Julius Caesar":"Roman general and statesman whose victories transformed the Republic.",
+ "Spartacus":"Gladiator who became the symbol of a massive revolt against Rome.",
+ "Nero Claudius":"Roman emperor remembered through both history and extravagant legend.",
+ "Caligula":"Roman emperor whose reputation became synonymous with excess and instability.",
+ "Cu Chulainn":"The Hound of Ulster, a young champion of Irish heroic legend.",
+ "Diarmuid ua Duibhne":"Fianna warrior remembered for skill, beauty, loyalty, and tragedy.",
+ "Fergus mac Róich":"Powerful Ulster warrior and former king of Irish heroic tradition.",
+ "Fionn mac Cumhaill":"Leader of the Fianna and one of Ireland's great legendary heroes.",
+ "Boudica":"Queen of the Iceni who led a famous uprising against Roman rule.",
+ "Scáthach":"Legendary warrior-teacher of the Isle of Skye and master of champions.",
+ "Sasaki Kojiro":"Legendary swordsman forever associated with his duel against Musashi.",
+ "Ushiwakamaru":"Youthful name of Minamoto no Yoshitsune, celebrated warrior of the Genpei era.",
+ "Benkei":"Warrior monk famed in legend for his strength and loyalty to Yoshitsune.",
+ "Tomoe Gozen":"Warrior celebrated in Japanese epic tradition for courage and archery.",
+ "Oda Nobunaga":"Daimyo whose campaigns helped drive the unification of Japan.",
+ "Miyamoto Musashi":"Swordsman, strategist, and author remembered as a master of the duel.",
+ "Astolfo":"Paladin of Charlemagne whose adventures belong to the Matter of France.",
+ "Marie Antoinette":"Queen of France whose life became one of the enduring symbols of the Revolution.",
+ "Gilles de Rais":"Marshal whose historical reputation later became entangled with exceptionally dark legend.",
+ "Roland":"Great paladin of Charlemagne celebrated in medieval epic poetry.",
+ "Napoleon":"French general and emperor who reshaped European warfare and politics.",
+ "Charlemagne":"Frankish emperor around whom generations of paladin legends accumulated.",
+ "Hildr":"A Valkyrie name from northern legend, associated with battle and the choosing of warriors.",
+ "Beowulf":"Geatish monster-slayer and hero of the Old English epic bearing his name.",
+ "Brynhildr":"Valkyrie and shield-maiden whose tragic story runs through Germanic and Norse legend.",
+ "Sigurd":"Dragon-slaying hero of the Völsung tradition and one of the north's greatest legendary warriors."
+};
+function traitIcon(t){return TRAIT_ICONS[t]||"◆";}
+function loreFor(name){return LORE[name]||"A heroic figure drawn from history or legend.";}
+
+const RELICS = [
+ {id:"hoplon",icon:"🛡️",name:"Hoplon of the Line",desc:"+180 Health and +20 Armor.",apply:u=>{u.maxHp+=180;u.hp+=180;u.armor+=20}},
+ {id:"composite",icon:"🏹",name:"Composite Bow",desc:"+18 Attack and +20% Attack Speed.",apply:u=>{u.atk+=18;u.as*=1.20}},
+ {id:"laurel",icon:"🌿",name:"Laurel Wreath",desc:"Begin combat with +35 Mana.",apply:u=>{u.mana+=35}},
+ {id:"warhorse",icon:"🐎",name:"Royal Warhorse",desc:"+25% move speed and +15% Attack Speed.",apply:u=>{u.moveSpeed*=1.25;u.as*=1.15}},
+ {id:"chain",icon:"⛓️",name:"Masterwork Mail",desc:"+35 Armor.",apply:u=>{u.armor+=35}},
+ {id:"standard",icon:"🚩",name:"Heroic Standard",desc:"+12% damage and 10% lifesteal.",apply:u=>{u.damageMult*=1.12;u.lifesteal+=.10}},
+ {id:"excalibur",icon:"✨",name:"Excalibur",desc:"+32 Attack and +15% critical-hit chance.",rare:true,apply:u=>{u.atk+=32;u.crit+=.15}}
+];
+function relicFor(id){return RELICS.find(r=>r.id===id)}
+
+const levelOdds = {
+ 3:[.70,.25,.05,0,0],
+ 4:[.55,.30,.15,0,0],
+ 5:[.40,.30,.25,.05,0],
+ 6:[.25,.30,.30,.14,.01],
+ 7:[.18,.25,.32,.22,.03]
+};
+const xpNeed={3:6,4:10,5:18,6:28};
+const state={
+ king:null,round:1,hp:100,gold:10,level:3,xp:0,shop:[],locked:false,
+ bench:Array(8).fill(null),board:Array(28).fill(null),selected:null,phase:"planning",wins:0,losses:0,
+ streak:0,lastResult:null,relics:[],enemyPlan:null,combatSpeed:1
+};
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+function makeOwned(data,star=1,relic=null){return {id:uid(),name:data.name,star,relic}}
+function dataFor(name){return UNITS.find(u=>u.name===name)}
+function log(msg,cls=""){const d=document.createElement("div");d.textContent=msg;if(cls)d.className=cls;$("#log").prepend(d)}
+function gold(n){state.gold+=n;renderTop()}
+function unitScale(star){return star===1?1:star===2?1.75:2.9}
+function starText(n){return "★".repeat(n)}
+function initials(name){return name.split(/\s+/).filter(Boolean).map(x=>x[0]).join("").slice(0,2).toUpperCase();}
+function nameHash(name){let h=0;for(let i=0;i<name.length;i++)h=((h<<5)-h+name.charCodeAt(i))|0;return Math.abs(h);}
+function heroSVG(name,cls,isKing=false){
+ const h=nameHash(name), skin=["#d5a47d","#c78f67","#e0b38c","#aa7657"][h%4], hair=["#34251c","#6b4b2d","#171616","#9d7a48","#6d5b50"][h%5];
+ const flip=h%2?-1:1, hairStyle=h%3;
+ const hairShape=hairStyle===0?`<path d="M20 27 Q21 10 32 10 Q46 11 45 29 Q41 20 34 19 Q26 22 20 27Z" fill="${hair}"/>`:
+ hairStyle===1?`<path d="M19 27 Q20 9 33 10 Q46 12 45 29 L41 20 L36 18 L30 21 L23 18Z" fill="${hair}"/>`:
+ `<path d="M18 28 Q21 10 32 10 Q44 9 47 27 L42 23 L39 15 L34 20 L28 16 L23 24Z" fill="${hair}"/>`;
+ let weapon="";
+ if(cls==="Saber")weapon=`<path d="M47 50 L56 13" stroke="#e8dfc8" stroke-width="2.4"/><path d="M51 31 L58 33" stroke="#caa75d" stroke-width="3"/>`;
+ else if(cls==="Lancer")weapon=`<path d="M52 55 L55 9" stroke="#d9c89e" stroke-width="2"/><path d="M55 8 L59 17 L52 15Z" fill="#e4c978"/>`;
+ else if(cls==="Archer")weapon=`<path d="M51 14 Q62 32 50 52" fill="none" stroke="#d1ad62" stroke-width="2"/><path d="M51 14 L50 52" stroke="#c8c1ad" stroke-width="1"/>`;
+ else if(cls==="Rider")weapon=`<path d="M48 46 Q55 35 61 43 Q54 52 46 52Z" fill="#c09a51"/><circle cx="55" cy="42" r="2" fill="#171512"/>`;
+ else if(cls==="Caster")weapon=`<circle cx="53" cy="21" r="8" fill="none" stroke="#a9c7e8" stroke-width="1.5"/><path d="M53 10 L53 32 M42 21 L64 21 M46 14 L60 28 M60 14 L46 28" stroke="#a9c7e8" stroke-width="1"/>`;
+ else if(cls==="Berserker")weapon=`<path d="M49 53 L55 20" stroke="#bfb6a2" stroke-width="3"/><path d="M49 20 Q56 11 63 18 L58 27Z" fill="#9e8e72"/>`;
+ const crown=isKing?`<path d="M20 15 L24 5 L31 13 L38 4 L44 15 Z" fill="#d6ad4e" stroke="#f0d98a" stroke-width="1"/>`:"";
+ return `<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="g${h}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff18"/><stop offset="1" stop-color="#00000022"/></linearGradient></defs><circle cx="32" cy="32" r="31" fill="url(#g${h})"/>${weapon}<path d="M12 63 Q15 45 27 42 L37 42 Q49 45 52 63Z" fill="#3c4650"/><path d="M27 39 L27 47 Q32 52 37 47 L37 39Z" fill="${skin}"/><ellipse cx="32" cy="27" rx="12" ry="14" fill="${skin}"/>${hairShape}<path d="M25 28 Q28 26 30 28 M34 28 Q37 26 39 28" stroke="#30241e" stroke-width="1.2" fill="none"/><path d="M29 35 Q32 37 35 35" stroke="#774d42" stroke-width="1.1" fill="none"/>${crown}<path d="M14 62 Q17 49 27 45 L32 51 L37 45 Q48 49 51 62" fill="none" stroke="#d6b55f55" stroke-width="2"/></svg>`;
+}
+function portraitHTML(d,size=""){return `<div class="portrait ${size} civ-${d.civ}" aria-label="Original portrait of ${esc(d.name)}">${heroSVG(d.name,d.cls,false)}<span class="portrait-class">${traitIcon(d.cls)}</span></div>`;}
+function kingPortraitHTML(k){return `<div class="king-portrait civ-${k.civ}">${heroSVG(k.name,k.role,true)}</div>`;}
+function rarityClass(cost){return `rarity-${Math.max(1,Math.min(5,cost))}`;}
+
+
+function renderKings(){
+ $("#kingGrid").innerHTML=KINGS.map(k=>`<button type="button" class="king-card panel" data-king="${k.id}">
+   ${kingPortraitHTML(k)}<div class="tag">${traitIcon(k.civ)} ${k.civ} Sovereign</div><h2>${k.name}</h2><div class="subtle">${k.era}</div>
+   <div class="king-lore">${k.lore}</div><div class="effect"><b>${k.effect}</b><br><span class="subtle">${k.desc}</span></div><div class="king-choose">Claim this crown →</div>
+ </button>`).join("");
+ $$(".king-card").forEach(c=>c.onclick=()=>startGame(c.dataset.king));
+}
+function startGame(id){
+ state.king=KINGS.find(k=>k.id===id);
+ $("#kingScreen").classList.add("hidden");$("#gameScreen").classList.remove("hidden");
+ buildStaticBoard();buildBench();reroll(true);prepareEnemy();renderAll();
+ log(`${state.king.name} takes the crown.`,"gold");
+ log("Recruit units, deploy them on the green half of the board, then start battle.");
+}
+function buildStaticBoard(){
+ $("#board").innerHTML="";
+ for(let i=0;i<28;i++){let c=document.createElement("div");c.className="cell "+(i<14?"enemy-zone":"player-zone");c.dataset.i=i;c.onclick=()=>cellClick(i);$("#board").appendChild(c)}
+}
+function buildBench(){
+ $("#bench").innerHTML="";
+ for(let i=0;i<8;i++){let c=document.createElement("div");c.className="bench-slot";c.dataset.i=i;c.onclick=()=>benchClick(i);$("#bench").appendChild(c)}
+}
+function renderAll(){renderTop();renderKing();renderBoard();renderBench();renderShop();renderTraits();renderSelected();renderScout();renderArmory()}
+function renderTop(){
+ $("#roundStat").textContent=state.round;$("#hpStat").textContent=state.hp;$("#goldStat").textContent=state.gold;
+ $("#levelStat").textContent=state.level;$("#xpStat").textContent=state.level>=7?"MAX":`${state.xp}/${xpNeed[state.level]} XP`;
+ $("#armyStat").textContent=`${boardUnits().length}/${state.level}`;
+ $("#streakStat").textContent=state.streak?`${state.streak}${state.lastResult==="win"?"W":"L"}`:"—";
+ $("#speedBtn").textContent=`${state.combatSpeed}× Speed`;
+ $("#battleBtn").disabled=state.phase!=="planning"||boardUnits().length===0;
+ $("#xpBtn").disabled=state.phase!=="planning"||state.level>=7||state.gold<4;
+ $("#rerollBtn").disabled=state.phase!=="planning"||state.gold<2;
+ $("#phaseText").textContent=state.phase==="planning"?"Planning Phase":"Battle in Progress";
+}
+function renderKing(){
+ let k=state.king;$("#kingMini").innerHTML=`<div class="king-mini-portrait">${kingPortraitHTML(k)}</div><b>${k.name}</b><div class="subtle" style="font-size:11px">${traitIcon(k.civ)} ${k.civ} • ${k.effect}</div>
+ <div style="clear:both;padding-top:8px;font-size:12px;line-height:1.35">${k.desc}</div>`;
+}
+function boardUnits(){return state.board.slice(14).filter(Boolean)}
+function renderBoard(combat=null){
+ $$("#board .cell").forEach((c,i)=>{c.innerHTML="";if(state.phase==="battle")c.classList.add("locked");else c.classList.remove("locked")});
+ if(combat){
+   combat.filter(u=>u.alive).forEach(u=>{
+    const idx=u.y*7+u.x,cell=$(`#board .cell[data-i="${idx}"]`);if(!cell)return;
+    const data=u.data;let tok=document.createElement("div");tok.className="unit-token "+(u.team==="enemy"?"enemy":"");
+    const hp=Math.max(0,Math.round(100*u.hp/u.maxHp)),mp=Math.min(100,Math.round(u.mana));
+    if(u.status.castFlash>0)tok.classList.add("casting");
+    tok.classList.add(rarityClass(data.cost));
+    tok.innerHTML=`<div class="unit-top">${portraitHTML(data)}<div class="unit-copy"><div class="unit-name">${esc(data.name)}${u.relic?` <span class="item-badge">${relicFor(u.relic).icon}</span>`:""}</div><div class="unit-meta">${traitIcon(data.civ)} ${data.civ} • ${traitIcon(data.cls)} ${data.cls}</div></div></div>
+    <div class="unit-bottom"><div><span class="stars">${starText(u.star)}</span><span class="unit-cost-mini">${data.cost}g</span></div><div class="hpbar"><div class="hpfill" style="width:${hp}%"></div></div>
+    <div class="manabar"><div class="manafill" style="width:${mp}%"></div></div></div>`;
+    cell.appendChild(tok);
+   });return;
+ }
+ state.board.forEach((owned,i)=>{
+  if(!owned)return;let cell=$(`#board .cell[data-i="${i}"]`);let d=dataFor(owned.name);
+  cell.innerHTML=tokenHTML(owned,d,false);cell.firstChild.onclick=(e)=>{e.stopPropagation();selectOwned("board",i)};
+ });
+}
+function tokenHTML(o,d,enemy){
+ return `<div class="unit-token ${enemy?"enemy":""} ${rarityClass(d.cost)} ${state.selected&&state.selected.area==="board"&&state.selected.index===state.board.indexOf(o)?"selected":""}">
+ <div class="unit-top">${portraitHTML(d)}<div class="unit-copy"><div class="unit-name">${esc(d.name)}${o.relic?` <span class="item-badge">${relicFor(o.relic).icon}</span>`:""}</div><div class="unit-meta">${traitIcon(d.civ)} ${d.civ} • ${traitIcon(d.cls)} ${d.cls}</div></div></div>
+ <div class="unit-bottom"><span class="stars">${starText(o.star)}</span><span class="unit-cost-mini">${d.cost}g</span></div></div>`;
+}
+function renderBench(){
+ $$(".bench-slot").forEach((c,i)=>{c.innerHTML="";let o=state.bench[i];if(!o)return;let d=dataFor(o.name);
+ c.innerHTML=`<div class="unit-token ${rarityClass(d.cost)} ${state.selected&&state.selected.area==="bench"&&state.selected.index===i?"selected":""}">
+ <div class="unit-top">${portraitHTML(d)}<div class="unit-copy"><div class="unit-name">${esc(d.name)}${o.relic?` <span class="item-badge">${relicFor(o.relic).icon}</span>`:""}</div><div class="unit-meta">${traitIcon(d.civ)} ${d.civ} • ${traitIcon(d.cls)} ${d.cls}</div></div></div>
+ <div class="unit-bottom"><span class="stars">${starText(o.star)}</span><span class="unit-cost-mini">${d.cost}g</span></div></div>`;
+ c.firstChild.onclick=(e)=>{e.stopPropagation();selectOwned("bench",i)}
+ });
+}
+function selectOwned(area,index){
+ if(state.phase!=="planning")return;
+ state.selected={area,index};renderBoard();renderBench();renderSelected();
+}
+function selectedOwned(){if(!state.selected)return null;return state[state.selected.area][state.selected.index]}
+function renderSelected(){
+ let o=selectedOwned();if(!o){$("#selectedPanel").innerHTML=`<span class="subtle">Select one of your units to inspect it.</span>`;$("#sellBtn").disabled=true;return}
+ let d=dataFor(o.name),s=unitScale(o.star);
+ $("#selectedPanel").innerHTML=`<div class="selected-hero">${portraitHTML(d,"large")}<div><h3 style="margin:0">${d.name} <span class="stars">${starText(o.star)}</span></h3><div><span class="${d.civ}">${traitIcon(d.civ)} ${d.civ}</span> • ${traitIcon(d.cls)} ${d.cls} • ${d.cost} gold</div></div></div>
+ <div class="stat-grid"><div class="mini-stat">Health<b>${Math.round(d.hp*s)}</b></div><div class="mini-stat">Attack<b>${Math.round(d.atk*s)}</b></div><div class="mini-stat">Armor<b>${Math.round(d.armor*s)}</b></div></div>
+ <p><b>${d.ability}</b><br><span class="subtle">${d.abilityText}</span></p><div class="unit-lore">${loreFor(d.name)}</div>
+ ${o.relic?`<div style="margin-top:8px"><b>${relicFor(o.relic).icon} ${relicFor(o.relic).name}</b><br><span class="subtle">${relicFor(o.relic).desc}</span></div>`:`<div class="subtle" style="margin-top:8px">Relic slot empty.</div>`}`;
+ $("#sellBtn").disabled=false;
+}
+function cellClick(i){
+ if(state.phase!=="planning"||i<14||!state.selected)return;
+ let o=selectedOwned();if(!o)return;
+ if(state.board[i]){
+   if(state.selected.area==="board"){let j=state.selected.index;[state.board[j],state.board[i]]=[state.board[i],state.board[j]];state.selected={area:"board",index:i}}
+   renderAll();return;
+ }
+ if(state.selected.area==="bench"&&boardUnits().length>=state.level){log(`Army cap reached. Level up to deploy more units.`,"lose");return}
+ state[state.selected.area][state.selected.index]=null;state.board[i]=o;state.selected={area:"board",index:i};renderAll();
+}
+function benchClick(i){
+ if(state.phase!=="planning"||!state.selected)return;
+ let o=selectedOwned();if(!o)return;
+ if(state.bench[i]){
+  if(state.selected.area==="bench"){let j=state.selected.index;[state.bench[j],state.bench[i]]=[state.bench[i],state.bench[j]];state.selected={area:"bench",index:i}}
+  renderAll();return;
+ }
+ state[state.selected.area][state.selected.index]=null;state.bench[i]=o;state.selected={area:"bench",index:i};renderAll();
+}
+function rollCost(){
+ let odds=levelOdds[state.level],r=Math.random(),sum=0;
+ for(let i=0;i<5;i++){sum+=odds[i];if(r<=sum)return i+1}return 1;
+}
+function reroll(free=false){
+ if(state.phase!=="planning")return;
+ if(!free){if(state.gold<2)return;state.gold-=2}
+ state.shop=Array.from({length:5},()=>{let cost=rollCost(),pool=UNITS.filter(u=>u.cost===cost);return {name:pool[Math.floor(Math.random()*pool.length)].name,sold:false}});
+ renderAll();
+}
+function renderShop(){
+ $("#shopCards").innerHTML=state.shop.map((s,i)=>{
+  let d=dataFor(s.name);return `<div class="shop-card ${rarityClass(d.cost)} ${s.sold?"sold":""}" data-shop="${i}">
+  <div class="cost">${d.cost}g</div>${portraitHTML(d,"shop")}
+  <h4>${d.name}</h4><div class="civ ${d.civ}">${traitIcon(d.civ)} ${d.civ} • ${traitIcon(d.cls)} ${d.cls}</div>
+  <p><b>${d.ability}</b><br>${d.abilityText}</p><p class="shop-lore">${loreFor(d.name)}</p></div>`}).join("");
+ $$(".shop-card").forEach(c=>c.onclick=()=>buyShop(+c.dataset.shop));
+ $("#lockBtn").textContent=state.locked?"🔒 Locked":"🔓 Lock";
+}
+function buyShop(i){
+ if(state.phase!=="planning")return;let s=state.shop[i];if(!s||s.sold)return;let d=dataFor(s.name);
+ if(state.gold<d.cost){log("Not enough gold.","lose");return}
+ let slot=state.bench.findIndex(x=>!x);if(slot<0){log("Bench is full.","lose");return}
+ state.gold-=d.cost;state.bench[slot]=makeOwned(d);s.sold=true;log(`Recruited ${d.name} for ${d.cost}g.`);
+ combineUnits(d.name);renderAll();
+}
+function allLocations(){
+ let a=[];state.bench.forEach((o,i)=>{if(o)a.push({area:"bench",index:i,o})});state.board.forEach((o,i)=>{if(o)a.push({area:"board",index:i,o})});return a;
+}
+function combineUnits(name){
+ for(let star=1;star<=2;star++){
+  let list=allLocations().filter(x=>x.o.name===name&&x.o.star===star);
+  while(list.length>=3){
+   let chosen=list.slice(0,3),dest=chosen.find(x=>x.area==="board")||chosen[0];
+   let keptRelic=(chosen.find(x=>x.o.relic)||{}).o?.relic||null;
+   let extras=chosen.filter(x=>x.o.relic&&x.o.relic!==keptRelic).map(x=>x.o.relic);state.relics.push(...extras);
+   chosen.forEach(x=>state[x.area][x.index]=null);
+   state[dest.area][dest.index]=makeOwned(dataFor(name),star+1,keptRelic);
+   log(`${name} ascends to ${star+1}★!`,"gold");
+   list=allLocations().filter(x=>x.o.name===name&&x.o.star===star);
+  }
+ }
+}
+function sellSelected(){
+ if(state.phase!=="planning")return;let o=selectedOwned();if(!o)return;let d=dataFor(o.name);
+ let value=d.cost*(o.star===1?1:o.star===2?3:9);if(o.relic){state.relics.push(o.relic);log(`${relicFor(o.relic).name} returns to your armory.`)}
+ state[state.selected.area][state.selected.index]=null;state.selected=null;state.gold+=value;
+ log(`Sold ${d.name} for ${value}g.`);renderAll();
+}
+function addXP(){
+ if(state.phase!=="planning"||state.level>=7||state.gold<4)return;state.gold-=4;state.xp+=4;
+ while(state.level<7&&state.xp>=xpNeed[state.level]){state.xp-=xpNeed[state.level];state.level++;log(`Your army reaches level ${state.level}.`,"gold")}
+ renderAll();
+}
+function uniqueTraitUnits(ownedUnits){
+ const seen=new Set();
+ return ownedUnits.filter(o=>{
+   if(!o||seen.has(o.name))return false;
+   seen.add(o.name);
+   return true;
+ });
+}
+
+function effectiveTraitCounts(){
+ let counts={};
+ uniqueTraitUnits(boardUnits()).forEach(o=>{
+   let d=dataFor(o.name);
+   counts[d.civ]=(counts[d.civ]||0)+1;
+   counts[d.cls]=(counts[d.cls]||0)+1;
+ });
+ return counts;
+}
+function tierFor(trait,n){let b=TRAITS[trait].breaks,t=0;for(let x of b)if(n>=x)t++;return t}
+function renderTraits(){
+ let counts=effectiveTraitCounts(),names=Object.keys(TRAITS).filter(t=>counts[t]);
+ names.sort((a,b)=>tierFor(b,counts[b])-tierFor(a,counts[a])||counts[b]-counts[a]);
+ $("#traitList").innerHTML=names.length?names.map(t=>{
+   let n=counts[t],tier=tierFor(t,n),b=TRAITS[t].breaks;
+   let next=tier>=b.length?"MAX":b[tier],current=tier?TRAITS[t].desc[tier-1]:`Next bonus at ${next}`;
+   let faction=FACTION_TRAITS.has(t);
+   return `<div class="trait-line ${tier?"active":""} ${faction?"faction-trait":""}" data-trait="${esc(t)}"
+     ${faction?`title="Hover or click for all ${esc(t)} bonuses" tabindex="0" role="button" aria-label="${esc(t)} faction bonuses"`:""}>
+     <div class="trait-title"><span class="trait-icon">${traitIcon(t)}</span><div><b>${t}</b> ${n} <span class="subtle">(${b.join("/")})</span></div></div>
+     <span class="subtle">${current}</span>
+     ${faction?factionTooltipHTML(t,n):""}
+   </div>`;
+ }).join("")
+ :`<span class="subtle">Deploy units to activate traits.</span>`;
+ bindFactionTooltips();
+}
+
+function bindFactionTooltips(){
+ $$("#traitList .faction-trait").forEach(line=>{
+   line.addEventListener("click",e=>{
+     e.stopPropagation();
+     const wasOpen=line.classList.contains("tooltip-open");
+     $$("#traitList .faction-trait.tooltip-open").forEach(x=>x.classList.remove("tooltip-open"));
+     if(!wasOpen)line.classList.add("tooltip-open");
+   });
+   line.addEventListener("keydown",e=>{
+     if(e.key==="Enter"||e.key===" "){
+       e.preventDefault();e.stopPropagation();
+       const wasOpen=line.classList.contains("tooltip-open");
+       $$("#traitList .faction-trait.tooltip-open").forEach(x=>x.classList.remove("tooltip-open"));
+       if(!wasOpen)line.classList.add("tooltip-open");
+     }else if(e.key==="Escape"){
+       line.classList.remove("tooltip-open");
+     }
+   });
+ });
+}
+document.addEventListener("click",()=>$$(".faction-trait.tooltip-open").forEach(x=>x.classList.remove("tooltip-open")));
+
+function adjacentPlayerCount(idx){
+ let x=idx%7,y=Math.floor(idx/7),n=0;[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{let nx=x+dx,ny=y+dy,j=ny*7+nx;if(nx>=0&&nx<7&&ny>=2&&ny<4&&state.board[j])n++});return n;
+}
+function makeCombatUnit(owned,team,x,y,index=-1){
+ let d=dataFor(owned.name),s=unitScale(owned.star);
+ let u={uid:uid(),team,x,y,index,data:d,star:owned.star,relic:owned.relic||null,hp:d.hp*s,maxHp:d.hp*s,atk:d.atk*s,armor:d.armor*s,
+ range:d.range,baseAS:d.as,as:d.as,mana:0,shield:0,alive:true,cooldown:Math.random()*.8,status:{},duelStacks:0,crit:0,
+ moveSpeed:1,damageMult:1,lifesteal:0,markMult:1};
+ if(u.relic)relicFor(u.relic).apply(u);return u;
+}
+function applyTraits(combat){
+ let pcounts=effectiveTraitCounts();
+ applySideTraits(combat.filter(u=>u.team==="player"),pcounts,true);
+ let ecounts={},seenEnemy=new Set();
+ combat.filter(u=>u.team==="enemy").forEach(u=>{
+   if(seenEnemy.has(u.data.name))return;
+   seenEnemy.add(u.data.name);
+   ecounts[u.data.civ]=(ecounts[u.data.civ]||0)+1;
+   ecounts[u.data.cls]=(ecounts[u.data.cls]||0)+1;
+ });
+ applySideTraits(combat.filter(u=>u.team==="enemy"),ecounts,false);
+ applyKing(combat.filter(u=>u.team==="player"));
+}
+function applySideTraits(units,counts,isPlayer){
+ for(let u of units){
+  let civTier=tierFor(u.data.civ,counts[u.data.civ]||0),clsTier=tierFor(u.data.cls,counts[u.data.cls]||0);
+  if(u.data.civ==="Greek"&&civTier){u.armor+=civTier===1?15:35;if(civTier>=3)u.damageMult*=1.15}
+  if(u.data.civ==="Arthurian"&&civTier){let adj=isPlayer?adjacentPlayerCount(u.index):1;if(adj){u.armor+=civTier===1?10:25;u.damageMult*=civTier===1?1.10:1.25}if(civTier>=3)u.shield+=180}
+  if(u.data.civ==="Roman"&&civTier)u.mana+=civTier===1?20:40;
+  if(u.data.civ==="Celtic"&&civTier){if(civTier>=3&&u.hp/u.maxHp<.5)u.lifesteal+=.15}
+  if(u.data.civ==="Japanese"&&civTier){u.crit+=(civTier===1?.15:.35);if(civTier>=3)u.damageMult*=1.12}
+  if(u.data.civ==="French"&&civTier){u.damageMult*=civTier===1?1.12:1.25;if(civTier>=2)u.mana+=20;if(civTier>=3){u.armor+=20;u.as*=1.15}}
+  if(u.data.civ==="Norse"&&civTier){u.as*=civTier===1?1.12:1.25;u.lifesteal+=civTier===1?.08:.18}
+  if(u.data.cls==="Saber"&&clsTier){u.armor+=clsTier===1?20:45;u.shield+=clsTier===1?100:240}
+  if(u.data.cls==="Lancer"&&clsTier){u.lancerStacksMax=clsTier===1?6:8;u.lancerStackValue=clsTier===1?.04:.07}
+  if(u.data.cls==="Berserker"&&clsTier){u.lifesteal=clsTier===1?Math.max(u.lifesteal,.12):Math.max(u.lifesteal,.25);if(clsTier===2)u.damageMult*=1.15}
+  if(u.data.cls==="Caster"&&clsTier)u.mana+=clsTier===1?20:40;
+  if(u.data.cls==="Rider"&&clsTier){u.as*=clsTier===1?1.20:1.45;if(clsTier===2)u.shield+=120;u.status.cavalryHaste=5}
+  if(u.data.cls==="Archer"&&clsTier)u.damageMult*=clsTier===1?1.12:1.28;
+ }
+}
+function applyKing(units){
+ if(!units.length)return;
+
+ if(state.king.id==="arthur"){
+   let champ=[...units].sort((a,b)=>b.data.cost-a.data.cost||b.star-a.star)[0];
+   champ.maxHp+=250;champ.hp+=250;champ.damageMult*=1.15;champ.status.champion=true;
+   units.forEach(u=>{if(adjacentPlayerCount(u.index)>=2)u.armor+=15});
+ }
+
+ if(state.king.id==="alexander"){
+   units.forEach(u=>{u.as*=1.12;u.moveSpeed*=1.15});
+ }
+
+ if(state.king.id==="jeanne"){
+   units.forEach(u=>{u.mana=Math.min(100,u.mana+20);u.shield+=80});
+ }
+
+ if(state.king.id==="gilgamesh"){
+   units.forEach(u=>{
+     if(u.relic){u.maxHp+=150;u.hp+=150;u.damageMult*=1.15}
+     else u.armor+=10;
+   });
+ }
+
+ if(state.king.id==="medb"){
+   [...units].sort((a,b)=>b.data.cost-a.data.cost||b.star-a.star).slice(0,2).forEach(u=>{
+     u.damageMult*=1.15;
+     u.lifesteal+=.12;
+     u.status.royalFavor=true;
+   });
+ }
+
+ if(state.king.id==="romulus"){
+   units.forEach(u=>{
+     if(u.y===2)u.armor+=25;
+     if(u.y===3)u.as*=1.12;
+   });
+ }
+
+ if(state.king.id==="yamato"){
+   units.forEach(u=>{
+     let hasAdjacent=units.some(a=>a.uid!==u.uid&&a.alive&&Math.abs(a.x-u.x)+Math.abs(a.y-u.y)===1);
+     if(!hasAdjacent){u.crit+=.20;u.damageMult*=1.10;u.status.wanderingBlade=true}
+   });
+ }
+}
+function buildEnemyPlan(){
+ let count=Math.min(7,state.level+(state.round>=5?1:0)),
+     theme=["Arthurian","Greek","Roman","Celtic","Japanese","French","Norse"][Math.floor(Math.random()*7)];
+ let units=[];
+ for(let i=0;i<count;i++){
+  let maxCost=Math.min(5,1+Math.floor((state.round+i%3)/3));
+  let themed=UNITS.filter(u=>u.cost<=maxCost&&u.civ===theme),
+      pool=(Math.random()<.72&&themed.length)?themed:UNITS.filter(u=>u.cost<=maxCost);
+  let d=pool[Math.floor(Math.random()*pool.length)];
+  let twoStarChance=Math.max(0,(state.round-6)*.045),star=Math.random()<twoStarChance?2:1;
+  units.push(makeOwned(d,star));
+ }
+ return {theme,units};
+}
+function prepareEnemy(){state.enemyPlan=buildEnemyPlan();renderScout()}
+function enemyCombatFromPlan(){
+ let front=[],back=[];state.enemyPlan.units.forEach(o=>{let d=dataFor(o.name);(["Saber","Berserker","Rider","Lancer"].includes(d.cls)?front:back).push(o)});
+ let coords=[];front.forEach((o,i)=>coords.push([o,i%7,1]));back.forEach((o,i)=>coords.push([o,i%7,0]));
+ return coords.map(([o,x,y])=>makeCombatUnit(o,"enemy",x,y,-1));
+}
+function renderScout(){
+ if(!state.enemyPlan){$("#enemyScout").innerHTML=`<span class="subtle">No scouts have reported yet.</span>`;return}
+ let traitCounts={},seenScout=new Set();
+ state.enemyPlan.units.forEach(o=>{
+   if(seenScout.has(o.name))return;
+   seenScout.add(o.name);
+   let d=dataFor(o.name);
+   traitCounts[d.civ]=(traitCounts[d.civ]||0)+1;
+   traitCounts[d.cls]=(traitCounts[d.cls]||0)+1;
+ });
+ let active=Object.keys(TRAITS).filter(t=>traitCounts[t]>=TRAITS[t].breaks[0]).map(t=>`${t} ${traitCounts[t]}`).join(" • ")||"No active synergy";
+ $("#enemyScout").innerHTML=`<div class="scout-title"><b class="${state.enemyPlan.theme}">${state.enemyPlan.theme} Warband</b><span class="subtle">Round ${state.round}</span></div>
+ <div class="subtle" style="font-size:11px;margin-bottom:7px">${active}</div><div class="scout-units">${state.enemyPlan.units.map(o=>`<span class="scout-chip">${esc(o.name)} <span class="stars">${starText(o.star)}</span></span>`).join("")}</div>`;
+}
+function startBattle(){
+ if(state.phase!=="planning"||!boardUnits().length)return;state.phase="battle";state.selected=null;renderTop();renderSelected();
+ let combat=[];state.board.forEach((o,i)=>{if(o&&i>=14)combat.push(makeCombatUnit(o,"player",i%7,Math.floor(i/7),i))});
+ combat.push(...enemyCombatFromPlan());applyTraits(combat);renderBoard(combat);
+ banner(`Round ${state.round}`);setTimeout(()=>runCombat(combat),700);
+}
+function banner(text){
+ let b=$("#battleBanner");b.querySelector("span").textContent=text;b.classList.remove("hidden");
+ setTimeout(()=>b.classList.add("hidden"),650);
+}
+function dist(a,b){return Math.abs(a.x-b.x)+Math.abs(a.y-b.y)}
+function nearest(u,enemies){return [...enemies].sort((a,b)=>dist(u,a)-dist(u,b))[0]}
+function farthest(u,enemies){return [...enemies].sort((a,b)=>dist(u,b)-dist(u,a))[0]}
+function showFloat(u,text,cls="damage"){
+ let layer=$("#floatLayer");if(!layer)return;let el=document.createElement("div");el.className=`float-num ${cls}`;el.textContent=text;
+ el.style.left=`${(u.x+.5)/7*100}%`;el.style.top=`${(u.y+.5)/4*100}%`;layer.appendChild(el);setTimeout(()=>el.remove(),750);
+}
+function damage(attacker,target,raw){
+ let crit=Math.random()<attacker.crit?1.75:1,marked=target.status.marked>0?1.25:1;
+ let weakened=attacker.status.weaken>0?.72:1;
+ let amount=raw*attacker.damageMult*crit*marked*weakened*(100/(100+Math.max(-50,target.armor)));
+ if(target.shield>0){let used=Math.min(target.shield,amount);target.shield-=used;amount-=used}
+ target.hp-=amount;showFloat(target,`${Math.round(amount)}`,crit>1?"crit":"damage");
+ if(attacker.lifesteal&&amount>0){let heal=amount*attacker.lifesteal;attacker.hp=Math.min(attacker.maxHp,attacker.hp+heal);showFloat(attacker,`+${Math.round(heal)}`,"heal")};
+ if(target.hp<=0){target.hp=0;target.alive=false}
+ return amount;
+}
+function basicAttack(u,t){
+ let raw=u.atk;
+ if(u.data.civ==="Celtic"){
+   let counts=u.team==="player"?effectiveTraitCounts():null;
+   let tier=counts?tierFor("Celtic",counts.Celtic||0):1;
+   let missing=1-u.hp/u.maxHp;raw*=1+missing*(tier>=2?.55:.25);
+ }
+ damage(u,t,raw);u.mana=Math.min(100,u.mana+18);u.cooldown=1/Math.max(.25,u.as);
+ if(u.data.cls==="Lancer"){let mx=u.lancerStacksMax||8,val=u.lancerStackValue||.05;u.duelStacks=Math.min(mx,u.duelStacks+1);u.as=u.baseAS*(1+u.duelStacks*val)}
+}
+function cast(u,enemies,allies){
+ if(!enemies.length)return;u.mana=0;u.status.castFlash=.55;showFloat(u,u.data.ability,"cast");let t=nearest(u,enemies),type=u.data.abilityType;
+ if(type==="farStrike"){t=farthest(u,enemies);damage(u,t,u.atk*2.2)}
+ else if(type==="shieldAura"){u.shield+=u.maxHp*.32;allies.filter(a=>a.alive&&dist(a,u)<=2).forEach(a=>a.armor+=12)}
+ else if(type==="weaken"){damage(u,t,u.atk*1.6);t.status.weaken=4}
+ else if(type==="frenzy"){u.shield+=u.maxHp*.45;u.status.frenzy=5;u.as*=1.55}
+ else if(type==="shield"){u.shield+=u.maxHp*.50}
+ else if(type==="healStrike"){let before=t.hp;let dealt=damage(u,t,u.atk*1.8);u.hp=Math.min(u.maxHp,u.hp+dealt*.55)}
+ else if(type==="mark"){damage(u,t,u.atk*1.35);t.status.marked=5}
+ else if(type==="teamHaste"){allies.filter(a=>a.alive).forEach(a=>{a.status.haste=5;a.as*=1.25})}
+ else if(type==="doubleStrike"){damage(u,t,u.atk*1.05);if(t.alive)damage(u,t,u.atk*1.05);u.shield+=90*u.star}
+ else if(type==="aoe"){enemies.filter(e=>e.alive&&dist(e,u)<=2).forEach(e=>damage(u,e,u.atk*1.25))}
+ else if(type==="stunStrike"){damage(u,t,u.atk*1.8);t.status.stun=1.2}
+ else if(type==="weakenAoe"){enemies.filter(e=>e.alive&&dist(e,u)<=3).slice(0,3).forEach(e=>{damage(u,e,u.atk*1.15);e.status.weaken=4})}
+ else if(type==="dashStrike"){u.x=Math.max(0,Math.min(6,t.x+(u.team==="player"?0:0)));u.y=Math.max(0,Math.min(3,t.y+(u.team==="player"?1:-1)));damage(u,t,u.atk*1.75)}
+ else if(type==="lineVolley"){enemies.filter(e=>e.alive).sort((a,b)=>dist(u,a)-dist(u,b)).slice(0,3).forEach(e=>damage(u,e,u.atk*1.35))}
+ else if(type==="tripleStrike"){for(let i=0;i<3&&t.alive;i++)damage(u,t,u.atk*.85)}
+ else if(type==="pierce"){let arr=enemies.filter(e=>e.alive).sort((a,b)=>dist(u,a)-dist(u,b));if(arr[0])damage(u,arr[0],u.atk*1.65);if(arr[1])damage(u,arr[1],u.atk*1.1)}
+ u.mana=Math.min(100,u.mana+(u.data.cls==="Caster"?10:0));u.cooldown=.55;
+}
+function moveToward(u,t,combat){
+ let dx=Math.sign(t.x-u.x),dy=Math.sign(t.y-u.y),opts=[];
+ if(Math.abs(t.x-u.x)>=Math.abs(t.y-u.y)){if(dx)opts.push([u.x+dx,u.y]);if(dy)opts.push([u.x,u.y+dy])}
+ else{if(dy)opts.push([u.x,u.y+dy]);if(dx)opts.push([u.x+dx,u.y])}
+ let occ=new Set(combat.filter(x=>x.alive&&x.uid!==u.uid).map(x=>`${x.x},${x.y}`));
+ for(let [x,y] of opts){if(x>=0&&x<7&&y>=0&&y<4&&!occ.has(`${x},${y}`)){u.x=x;u.y=y;break}}
+ u.cooldown=.33/Math.max(.5,u.moveSpeed);
+}
+function tickStatuses(u,dt){
+ for(let k of Object.keys(u.status)){if(typeof u.status[k]==="number"&&u.status[k]>0){u.status[k]-=dt;
+   if(u.status[k]<=0){
+    if(k==="frenzy")u.as/=1.55;if(k==="haste")u.as/=1.25;
+   }
+ }}
+}
+function runCombat(combat){
+ let elapsed=0,baseDt=.18;
+ const timer=setInterval(()=>{
+  let dt=baseDt*state.combatSpeed;elapsed+=dt;
+  for(let u of combat.filter(x=>x.alive)){
+   tickStatuses(u,dt);u.cooldown-=dt;
+   if(u.status.stun>0)continue;
+   let enemies=combat.filter(x=>x.alive&&x.team!==u.team),allies=combat.filter(x=>x.alive&&x.team===u.team);
+   if(!enemies.length)continue;
+   if(u.mana>=100){cast(u,enemies,allies);continue}
+   let t=nearest(u,enemies);
+   if(u.cooldown<=0){if(dist(u,t)<=u.range)basicAttack(u,t);else moveToward(u,t,combat)}
+   u.mana=Math.min(100,u.mana+dt*2.2);
+  }
+  renderBoard(combat);
+  let p=combat.filter(x=>x.alive&&x.team==="player"),e=combat.filter(x=>x.alive&&x.team==="enemy");
+  if(!p.length||!e.length||elapsed>=28){
+   clearInterval(timer);let result=p.length===e.length?"draw":p.length>e.length?"win":"loss";
+   finishBattle(result,p.length,e.length);
+  }
+ },baseDt*1000);
+}
+function streakIncome(){return state.streak>=6?3:state.streak>=4?2:state.streak>=2?1:0}
+function finishBattle(result,pSurv,eSurv){
+ if(result==="win"){
+  state.wins++;state.streak=state.lastResult==="win"?state.streak+1:1;state.lastResult="win";
+  let bonus=state.king.id==="alexander"?1:0;
+  state.gold+=bonus;
+  log(`Victory! ${pSurv} of your units survived.${bonus?" Momentum of Conquest grants +1g.":""}`,"win");
+  banner("Victory");
+ } else if(result==="loss"){
+  state.losses++;state.streak=state.lastResult==="loss"?state.streak+1:1;state.lastResult="loss";
+  let dmg=4+eSurv*2+Math.floor(state.round/5);
+  if(state.king.id==="jeanne")dmg=Math.max(1,dmg-2);
+  state.hp=Math.max(0,state.hp-dmg);
+  log(`Defeat. Your crown takes ${dmg} damage.${state.king.id==="jeanne"?" Banner of Resolve reduced the loss by 2.":""}`,"lose");
+  banner("Defeat");
+ } else {
+  state.streak=0;state.lastResult=null;log("The battle ends in a draw.");banner("Draw");
+ }
+ setTimeout(()=>{
+  if(state.hp<=0){
+   $("#gameOverText").textContent=`You survived ${state.round} rounds with ${state.wins} victories.`;
+   $("#gameOver").classList.remove("hidden");return;
+  }
+  let completed=state.round;state.round++;
+  let interest=Math.min(5,Math.floor(state.gold/10)),streak=streakIncome(),income=5+interest+streak;
+  state.gold+=income;
+  log(`Round ${state.round}: +5 income${interest?` +${interest} interest`:""}${streak?` +${streak} streak`:""}.`,"gold");
+  if(state.round%3===0)offerRelicChoice();else beginPlanning();
+ },900);
+}
+function beginPlanning(){
+ state.phase="planning";prepareEnemy();if(!state.locked)reroll(true);else renderAll();renderAll();
+}
+function relicOptions(){
+ let normal=RELICS.filter(r=>!r.rare),pool=[...normal].sort(()=>Math.random()-.5).slice(0,3);
+ if(state.round>=6&&Math.random()<.28)pool[2]=RELICS.find(r=>r.rare);return pool;
+}
+function offerRelicChoice(){
+ state.phase="relic";renderTop();let opts=relicOptions();$("#relicChoices").innerHTML=opts.map(r=>`<div class="relic-card" data-relic="${r.id}"><div class="big-icon">${r.icon}</div><h3>${r.name}</h3>${r.rare?`<div class="tag">Legendary</div>`:""}<p class="subtle">${r.desc}</p></div>`).join("");
+ $("#relicChoice").classList.remove("hidden");$$('.relic-card').forEach(c=>c.onclick=()=>chooseRelic(c.dataset.relic));
+}
+function chooseRelic(id){state.relics.push(id);$("#relicChoice").classList.add("hidden");log(`Relic acquired: ${relicFor(id).name}.`,"gold");beginPlanning()}
+function renderArmory(){
+ let a=$("#armory");if(!state.relics.length){a.innerHTML=`<span class="subtle" style="font-size:12px">No unequipped relics. A choice appears every 3 rounds.</span>`;return}
+ a.innerHTML=state.relics.map((id,i)=>{let r=relicFor(id);return `<div class="relic-row" data-relic-index="${i}"><div class="relic-icon">${r.icon}</div><div class="relic-info"><b>${r.name}</b><br><span class="subtle">${r.desc}</span></div></div>`}).join("");
+ $$('.relic-row').forEach(x=>x.onclick=()=>equipRelic(+x.dataset.relicIndex));
+}
+function equipRelic(i){
+ if(state.phase!=="planning")return;let o=selectedOwned();if(!o){log("Select a unit before equipping a relic.","lose");return}
+ if(o.relic){log(`${o.name} already carries ${relicFor(o.relic).name}. Sell the unit to recover it.`,"lose");return}
+ o.relic=state.relics.splice(i,1)[0];log(`${o.name} equips ${relicFor(o.relic).name}.`,"gold");renderAll();
+}
+$("#battleBtn").onclick=startBattle;
+$("#rerollBtn").onclick=()=>reroll(false);
+$("#xpBtn").onclick=addXP;
+$("#sellBtn").onclick=sellSelected;
+$("#lockBtn").onclick=()=>{state.locked=!state.locked;renderShop()};
+$("#speedBtn").onclick=()=>{state.combatSpeed=state.combatSpeed===1?2:1;renderTop()};
+renderKings();
+</script>
+</body>
+</html>
