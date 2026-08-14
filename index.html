@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Crown & Chronicle — Autobattler Prototype</title>
+<title>Crown & Chronicle — Autobattler Prototype v2</title>
 <style>
 :root{
   --bg:#11141b;--panel:#1b202b;--panel2:#242b38;--line:#3c4658;--text:#eef2f7;
@@ -99,6 +99,27 @@ pointer-events:none;font-family:Georgia,serif;font-size:48px;text-shadow:0 4px 1
 .rulebook{margin-top:12px;padding:12px}
 details summary{cursor:pointer;font-weight:700;color:#d8e1ee}
 details p,details li{font-size:13px;color:#b6c1d0;line-height:1.45}
+.scout{padding:9px;background:#0003;border-radius:10px;margin-bottom:12px}
+.scout-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.scout-units{display:flex;flex-wrap:wrap;gap:5px}
+.scout-chip{font-size:10px;padding:4px 6px;border-radius:7px;background:#ffffff0d;border:1px solid #ffffff14}
+#armory{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.relic-row{display:flex;gap:8px;align-items:center;padding:7px;background:#0003;border-radius:8px;border:1px solid #ffffff10;cursor:pointer}
+.relic-row:hover{border-color:var(--gold)}
+.relic-icon{font-size:22px;width:28px;text-align:center}.relic-info{font-size:11px;line-height:1.25}
+.item-badge{font-size:11px;background:#0009;border:1px solid #e4bd5577;color:#ffe294;padding:1px 4px;border-radius:5px;margin-left:3px}
+#floatLayer{position:absolute;inset:7px;z-index:8;pointer-events:none}
+.float-num{position:absolute;transform:translate(-50%,-50%);font-size:13px;font-weight:800;text-shadow:0 2px 4px #000;animation:floatUp .7s ease-out forwards}
+.float-num.damage{color:#ffd0d0}.float-num.crit{color:#ffd767;font-size:16px}.float-num.heal{color:#80e39a}.float-num.cast{color:#a8c7ff;font-size:11px;letter-spacing:.08em}
+@keyframes floatUp{0%{opacity:0;transform:translate(-50%,-10%)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-140%)}}
+.unit-token.casting{box-shadow:0 0 0 2px #8bb7ff,0 0 18px #5794ff99}
+.relic-modal{position:fixed;inset:0;background:#080a0eea;z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
+.relic-choice-box{width:min(900px,95vw);padding:24px;text-align:center}
+.relic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.relic-card{padding:18px;background:#121823;border:1px solid #3b4659;border-radius:12px;cursor:pointer;transition:.15s;min-height:190px}
+.relic-card:hover{transform:translateY(-3px);border-color:var(--gold)}
+.relic-card .big-icon{font-size:42px}.relic-card h3{font-family:Georgia,serif;margin:7px 0}
+.combat-speed{min-width:62px}
 @media(max-width:1050px){
  .game-layout{grid-template-columns:1fr}
  .left,.right{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -110,6 +131,7 @@ details p,details li{font-size:13px;color:#b6c1d0;line-height:1.45}
  #board{grid-template-rows:repeat(4,68px);gap:3px}
  #shopCards{grid-template-columns:1fr 1fr}
  #bench{grid-template-columns:repeat(4,1fr)}
+ .relic-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -131,7 +153,9 @@ details p,details li{font-size:13px;color:#b6c1d0;line-height:1.45}
     <div class="stat">🪙 <b id="goldStat">10</b></div>
     <div class="stat">Level <b id="levelStat">3</b> <span class="subtle" id="xpStat">0/6 XP</span></div>
     <div class="stat">Army <b id="armyStat">0/3</b></div>
+    <div class="stat">Streak <b id="streakStat">—</b></div>
     <div class="spacer"></div>
+    <button id="speedBtn" class="secondary combat-speed">1× Speed</button>
     <button id="xpBtn" class="secondary">Buy 4 XP — 4g</button>
     <button id="battleBtn" class="primary">Start Battle</button>
   </div>
@@ -150,6 +174,7 @@ details p,details li{font-size:13px;color:#b6c1d0;line-height:1.45}
         <div class="zone-label enemy">Enemy deployment</div>
         <div class="zone-label player">Your deployment</div>
         <div id="battleBanner" class="hidden"><span></span></div>
+        <div id="floatLayer"></div>
         <div id="board"></div>
       </div>
 
@@ -161,6 +186,10 @@ details p,details li{font-size:13px;color:#b6c1d0;line-height:1.45}
       <h3>Selected Unit</h3>
       <div id="selectedPanel"><span class="subtle">Select one of your units to inspect it.</span></div>
       <button id="sellBtn" class="danger" disabled>Sell Selected</button>
+      <h3 style="margin-top:16px">Enemy Scout</h3>
+      <div id="enemyScout" class="scout"></div>
+      <h3>Relic Armory</h3>
+      <div id="armory"></div>
       <h3 style="margin-top:16px">Chronicle</h3>
       <div id="log" class="log"></div>
     </aside>
@@ -187,11 +216,23 @@ details p,details li{font-size:13px;color:#b6c1d0;line-height:1.45}
         <li>Three identical 1★ units automatically merge into a 2★. Three 2★ units merge into a 3★.</li>
         <li>Rerolls cost 2 gold. Buying 4 XP costs 4 gold. Interest pays +1 gold per 10 saved, up to +5.</li>
         <li>Only units on the battlefield activate traits. Your King permanently changes your army's rules.</li>
+        <li>The Enemy Scout shows the army you will actually fight, so you can reposition before combat.</li>
+        <li>Every 3 rounds you choose a Relic. Select a unit, then click a Relic in your Armory to equip it.</li>
+        <li>Win/loss streaks grant up to +3 bonus gold each round.</li>
         <li>Combat is automatic. Units move, basic attack, gain mana, and cast their named ability at 100 mana.</li>
       </ul>
     </details>
   </section>
 </section>
+</div>
+
+<div id="relicChoice" class="relic-modal hidden">
+  <div class="relic-choice-box panel">
+    <div class="subtle" style="letter-spacing:.14em;text-transform:uppercase">Spoils of History</div>
+    <h1 class="title">Choose a Relic</h1>
+    <p class="subtle">Add one permanent relic to your armory. Equip it to any unit during planning.</p>
+    <div id="relicChoices" class="relic-grid"></div>
+  </div>
 </div>
 
 <div id="gameOver" class="hidden">
@@ -255,6 +296,17 @@ const TRAITS = {
  Archer:{breaks:[2,4],desc:["Archers deal +12% basic-attack damage.","Archers deal +28% basic-attack damage."]}
 };
 
+const RELICS = [
+ {id:"hoplon",icon:"🛡️",name:"Hoplon of the Line",desc:"+180 Health and +20 Armor.",apply:u=>{u.maxHp+=180;u.hp+=180;u.armor+=20}},
+ {id:"composite",icon:"🏹",name:"Composite Bow",desc:"+18 Attack and +20% Attack Speed.",apply:u=>{u.atk+=18;u.as*=1.20}},
+ {id:"laurel",icon:"🌿",name:"Laurel Wreath",desc:"Begin combat with +35 Mana.",apply:u=>{u.mana+=35}},
+ {id:"warhorse",icon:"🐎",name:"Royal Warhorse",desc:"+25% move speed and +15% Attack Speed.",apply:u=>{u.moveSpeed*=1.25;u.as*=1.15}},
+ {id:"chain",icon:"⛓️",name:"Masterwork Mail",desc:"+35 Armor.",apply:u=>{u.armor+=35}},
+ {id:"standard",icon:"🚩",name:"Heroic Standard",desc:"+12% damage and 10% lifesteal.",apply:u=>{u.damageMult*=1.12;u.lifesteal+=.10}},
+ {id:"excalibur",icon:"✨",name:"Excalibur",desc:"+32 Attack and +15% critical-hit chance.",rare:true,apply:u=>{u.atk+=32;u.crit+=.15}}
+];
+function relicFor(id){return RELICS.find(r=>r.id===id)}
+
 const levelOdds = {
  3:[.70,.25,.05,0,0],
  4:[.55,.30,.15,0,0],
@@ -265,14 +317,15 @@ const levelOdds = {
 const xpNeed={3:6,4:10,5:18,6:28};
 const state={
  king:null,round:1,hp:100,gold:10,level:3,xp:0,shop:[],locked:false,
- bench:Array(8).fill(null),board:Array(28).fill(null),selected:null,phase:"planning",wins:0,losses:0
+ bench:Array(8).fill(null),board:Array(28).fill(null),selected:null,phase:"planning",wins:0,losses:0,
+ streak:0,lastResult:null,relics:[],enemyPlan:null,combatSpeed:1
 };
 
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
-function makeOwned(data,star=1){return {id:uid(),name:data.name,star}}
+function makeOwned(data,star=1,relic=null){return {id:uid(),name:data.name,star,relic}}
 function dataFor(name){return UNITS.find(u=>u.name===name)}
 function log(msg,cls=""){const d=document.createElement("div");d.textContent=msg;if(cls)d.className=cls;$("#log").prepend(d)}
 function gold(n){state.gold+=n;renderTop()}
@@ -289,7 +342,7 @@ function renderKings(){
 function startGame(id){
  state.king=KINGS.find(k=>k.id===id);
  $("#kingScreen").classList.add("hidden");$("#gameScreen").classList.remove("hidden");
- buildStaticBoard();buildBench();reroll(true);renderAll();
+ buildStaticBoard();buildBench();reroll(true);prepareEnemy();renderAll();
  log(`${state.king.name} takes the crown.`,"gold");
  log("Recruit units, deploy them on the green half of the board, then start battle.");
 }
@@ -301,11 +354,13 @@ function buildBench(){
  $("#bench").innerHTML="";
  for(let i=0;i<8;i++){let c=document.createElement("div");c.className="bench-slot";c.dataset.i=i;c.onclick=()=>benchClick(i);$("#bench").appendChild(c)}
 }
-function renderAll(){renderTop();renderKing();renderBoard();renderBench();renderShop();renderTraits();renderSelected()}
+function renderAll(){renderTop();renderKing();renderBoard();renderBench();renderShop();renderTraits();renderSelected();renderScout();renderArmory()}
 function renderTop(){
  $("#roundStat").textContent=state.round;$("#hpStat").textContent=state.hp;$("#goldStat").textContent=state.gold;
  $("#levelStat").textContent=state.level;$("#xpStat").textContent=state.level>=7?"MAX":`${state.xp}/${xpNeed[state.level]} XP`;
  $("#armyStat").textContent=`${boardUnits().length}/${state.level}`;
+ $("#streakStat").textContent=state.streak?`${state.streak}${state.lastResult==="win"?"W":"L"}`:"—";
+ $("#speedBtn").textContent=`${state.combatSpeed}× Speed`;
  $("#battleBtn").disabled=state.phase!=="planning"||boardUnits().length===0;
  $("#xpBtn").disabled=state.phase!=="planning"||state.level>=7||state.gold<4;
  $("#rerollBtn").disabled=state.phase!=="planning"||state.gold<2;
@@ -323,7 +378,8 @@ function renderBoard(combat=null){
     const idx=u.y*7+u.x,cell=$(`#board .cell[data-i="${idx}"]`);if(!cell)return;
     const data=u.data;let tok=document.createElement("div");tok.className="unit-token "+(u.team==="enemy"?"enemy":"");
     const hp=Math.max(0,Math.round(100*u.hp/u.maxHp)),mp=Math.min(100,Math.round(u.mana));
-    tok.innerHTML=`<div><div class="unit-name">${esc(data.name)}</div><div class="unit-meta">${data.civ} • ${data.cls}</div></div>
+    if(u.status.castFlash>0)tok.classList.add("casting");
+    tok.innerHTML=`<div><div class="unit-name">${esc(data.name)}${u.relic?` <span class="item-badge">${relicFor(u.relic).icon}</span>`:""}</div><div class="unit-meta">${data.civ} • ${data.cls}</div></div>
     <div><div class="stars">${starText(u.star)}</div><div class="hpbar"><div class="hpfill" style="width:${hp}%"></div></div>
     <div class="manabar"><div class="manafill" style="width:${mp}%"></div></div></div>`;
     cell.appendChild(tok);
@@ -336,13 +392,13 @@ function renderBoard(combat=null){
 }
 function tokenHTML(o,d,enemy){
  return `<div class="unit-token ${enemy?"enemy":""} ${state.selected&&state.selected.area==="board"&&state.selected.index===state.board.indexOf(o)?"selected":""}">
- <div><div class="unit-name">${esc(d.name)}</div><div class="unit-meta">${d.civ} • ${d.cls}</div></div>
+ <div><div class="unit-name">${esc(d.name)}${o.relic?` <span class="item-badge">${relicFor(o.relic).icon}</span>`:""}</div><div class="unit-meta">${d.civ} • ${d.cls}</div></div>
  <div><div class="stars">${starText(o.star)}</div><div class="unit-meta">${d.cost}g</div></div></div>`;
 }
 function renderBench(){
  $$(".bench-slot").forEach((c,i)=>{c.innerHTML="";let o=state.bench[i];if(!o)return;let d=dataFor(o.name);
  c.innerHTML=`<div class="unit-token ${state.selected&&state.selected.area==="bench"&&state.selected.index===i?"selected":""}">
- <div><div class="unit-name">${esc(d.name)}</div><div class="unit-meta">${d.civ} • ${d.cls}</div></div>
+ <div><div class="unit-name">${esc(d.name)}${o.relic?` <span class="item-badge">${relicFor(o.relic).icon}</span>`:""}</div><div class="unit-meta">${d.civ} • ${d.cls}</div></div>
  <div><div class="stars">${starText(o.star)}</div><div class="unit-meta">${d.cost}g</div></div></div>`;
  c.firstChild.onclick=(e)=>{e.stopPropagation();selectOwned("bench",i)}
  });
@@ -358,7 +414,8 @@ function renderSelected(){
  $("#selectedPanel").innerHTML=`<h3 style="margin-bottom:4px">${d.name} <span class="stars">${starText(o.star)}</span></h3>
  <div><span class="${d.civ}">${d.civ}</span> • ${d.cls} • ${d.cost} gold</div>
  <p><b>${d.ability}</b><br><span class="subtle">${d.abilityText}</span></p>
- <div class="subtle">HP ${Math.round(d.hp*s)} • ATK ${Math.round(d.atk*s)} • Armor ${Math.round(d.armor*s)}</div>`;
+ <div class="subtle">HP ${Math.round(d.hp*s)} • ATK ${Math.round(d.atk*s)} • Armor ${Math.round(d.armor*s)}</div>
+ ${o.relic?`<div style="margin-top:8px"><b>${relicFor(o.relic).icon} ${relicFor(o.relic).name}</b><br><span class="subtle">${relicFor(o.relic).desc}</span></div>`:`<div class="subtle" style="margin-top:8px">Relic slot empty.</div>`}`;
  $("#sellBtn").disabled=false;
 }
 function cellClick(i){
@@ -413,8 +470,10 @@ function combineUnits(name){
   let list=allLocations().filter(x=>x.o.name===name&&x.o.star===star);
   while(list.length>=3){
    let chosen=list.slice(0,3),dest=chosen.find(x=>x.area==="board")||chosen[0];
+   let keptRelic=(chosen.find(x=>x.o.relic)||{}).o?.relic||null;
+   let extras=chosen.filter(x=>x.o.relic&&x.o.relic!==keptRelic).map(x=>x.o.relic);state.relics.push(...extras);
    chosen.forEach(x=>state[x.area][x.index]=null);
-   state[dest.area][dest.index]=makeOwned(dataFor(name),star+1);
+   state[dest.area][dest.index]=makeOwned(dataFor(name),star+1,keptRelic);
    log(`${name} ascends to ${star+1}★!`,"gold");
    list=allLocations().filter(x=>x.o.name===name&&x.o.star===star);
   }
@@ -422,7 +481,8 @@ function combineUnits(name){
 }
 function sellSelected(){
  if(state.phase!=="planning")return;let o=selectedOwned();if(!o)return;let d=dataFor(o.name);
- let value=d.cost*(o.star===1?1:o.star===2?3:9);state[state.selected.area][state.selected.index]=null;state.selected=null;state.gold+=value;
+ let value=d.cost*(o.star===1?1:o.star===2?3:9);if(o.relic){state.relics.push(o.relic);log(`${relicFor(o.relic).name} returns to your armory.`)}
+ state[state.selected.area][state.selected.index]=null;state.selected=null;state.gold+=value;
  log(`Sold ${d.name} for ${value}g.`);renderAll();
 }
 function addXP(){
@@ -453,9 +513,10 @@ function adjacentPlayerCount(idx){
 }
 function makeCombatUnit(owned,team,x,y,index=-1){
  let d=dataFor(owned.name),s=unitScale(owned.star);
- return {uid:uid(),team,x,y,index,data:d,star:owned.star,hp:d.hp*s,maxHp:d.hp*s,atk:d.atk*s,armor:d.armor*s,
+ let u={uid:uid(),team,x,y,index,data:d,star:owned.star,relic:owned.relic||null,hp:d.hp*s,maxHp:d.hp*s,atk:d.atk*s,armor:d.armor*s,
  range:d.range,baseAS:d.as,as:d.as,mana:0,shield:0,alive:true,cooldown:Math.random()*.8,status:{},duelStacks:0,crit:0,
  moveSpeed:1,damageMult:1,lifesteal:0,markMult:1};
+ if(u.relic)relicFor(u.relic).apply(u);return u;
 }
 function applyTraits(combat){
  let pcounts=effectiveTraitCounts();
@@ -488,23 +549,36 @@ function applyKing(units){
    units.forEach(u=>{if(adjacentPlayerCount(u.index)>=2)u.armor+=15});
  }
 }
-function generateEnemy(){
- let count=Math.min(7,state.level+(state.round>=4?1:0)),power=Math.min(4,1+Math.floor(state.round/4));
- let chosen=[],theme=["Greek","Roman","Norse","Japanese","Mongol"][Math.floor(Math.random()*5)];
+function buildEnemyPlan(){
+ let count=Math.min(7,state.level+(state.round>=5?1:0)),theme=["Greek","Roman","Norse","Japanese","Mongol"][Math.floor(Math.random()*5)];
+ let units=[];
  for(let i=0;i<count;i++){
-  let maxCost=Math.min(5,1+Math.floor((state.round+i%3)/3)),pool=UNITS.filter(u=>u.cost<=maxCost&&(Math.random()<.65?u.civ===theme:true));
-  if(!pool.length)pool=UNITS.filter(u=>u.cost<=maxCost);
-  let d=pool[Math.floor(Math.random()*pool.length)],star=(state.round>=9&&Math.random()<.18)?2:1;
-  chosen.push(makeOwned(d,star));
+  let maxCost=Math.min(5,1+Math.floor((state.round+i%3)/3));
+  let themed=UNITS.filter(u=>u.cost<=maxCost&&u.civ===theme),pool=(Math.random()<.72&&themed.length)?themed:UNITS.filter(u=>u.cost<=maxCost);
+  let d=pool[Math.floor(Math.random()*pool.length)];
+  let twoStarChance=Math.max(0,(state.round-6)*.045),star=Math.random()<twoStarChance?2:1;
+  units.push(makeOwned(d,star));
  }
- return chosen.map((o,i)=>makeCombatUnit(o,"enemy",i%7,Math.floor(i/7),-1));
+ return {theme,units};
+}
+function prepareEnemy(){state.enemyPlan=buildEnemyPlan();renderScout()}
+function enemyCombatFromPlan(){
+ let front=[],back=[];state.enemyPlan.units.forEach(o=>{let d=dataFor(o.name);(["Guardian","Berserker","Cavalry","Duelist"].includes(d.cls)?front:back).push(o)});
+ let coords=[];front.forEach((o,i)=>coords.push([o,i%7,1]));back.forEach((o,i)=>coords.push([o,i%7,0]));
+ return coords.map(([o,x,y])=>makeCombatUnit(o,"enemy",x,y,-1));
+}
+function renderScout(){
+ if(!state.enemyPlan){$("#enemyScout").innerHTML=`<span class="subtle">No scouts have reported yet.</span>`;return}
+ let traitCounts={};state.enemyPlan.units.forEach(o=>{let d=dataFor(o.name);traitCounts[d.civ]=(traitCounts[d.civ]||0)+1;traitCounts[d.cls]=(traitCounts[d.cls]||0)+1});
+ let active=Object.keys(TRAITS).filter(t=>traitCounts[t]>=TRAITS[t].breaks[0]).map(t=>`${t} ${traitCounts[t]}`).join(" • ")||"No active synergy";
+ $("#enemyScout").innerHTML=`<div class="scout-title"><b class="${state.enemyPlan.theme}">${state.enemyPlan.theme} Warband</b><span class="subtle">Round ${state.round}</span></div>
+ <div class="subtle" style="font-size:11px;margin-bottom:7px">${active}</div><div class="scout-units">${state.enemyPlan.units.map(o=>`<span class="scout-chip">${esc(o.name)} <span class="stars">${starText(o.star)}</span></span>`).join("")}</div>`;
 }
 function startBattle(){
  if(state.phase!=="planning"||!boardUnits().length)return;state.phase="battle";state.selected=null;renderTop();renderSelected();
  let combat=[];state.board.forEach((o,i)=>{if(o&&i>=14)combat.push(makeCombatUnit(o,"player",i%7,Math.floor(i/7),i))});
- combat.push(...generateEnemy());applyTraits(combat);renderBoard(combat);
- banner(`Round ${state.round}`);
- setTimeout(()=>runCombat(combat),700);
+ combat.push(...enemyCombatFromPlan());applyTraits(combat);renderBoard(combat);
+ banner(`Round ${state.round}`);setTimeout(()=>runCombat(combat),700);
 }
 function banner(text){
  let b=$("#battleBanner");b.querySelector("span").textContent=text;b.classList.remove("hidden");
@@ -513,11 +587,17 @@ function banner(text){
 function dist(a,b){return Math.abs(a.x-b.x)+Math.abs(a.y-b.y)}
 function nearest(u,enemies){return [...enemies].sort((a,b)=>dist(u,a)-dist(u,b))[0]}
 function farthest(u,enemies){return [...enemies].sort((a,b)=>dist(u,b)-dist(u,a))[0]}
+function showFloat(u,text,cls="damage"){
+ let layer=$("#floatLayer");if(!layer)return;let el=document.createElement("div");el.className=`float-num ${cls}`;el.textContent=text;
+ el.style.left=`${(u.x+.5)/7*100}%`;el.style.top=`${(u.y+.5)/4*100}%`;layer.appendChild(el);setTimeout(()=>el.remove(),750);
+}
 function damage(attacker,target,raw){
  let crit=Math.random()<attacker.crit?1.75:1,marked=target.status.marked>0?1.25:1;
- let amount=raw*attacker.damageMult*crit*marked*(100/(100+Math.max(-50,target.armor)));
+ let weakened=attacker.status.weaken>0?.72:1;
+ let amount=raw*attacker.damageMult*crit*marked*weakened*(100/(100+Math.max(-50,target.armor)));
  if(target.shield>0){let used=Math.min(target.shield,amount);target.shield-=used;amount-=used}
- target.hp-=amount;if(attacker.lifesteal)attacker.hp=Math.min(attacker.maxHp,attacker.hp+amount*attacker.lifesteal);
+ target.hp-=amount;showFloat(target,`${Math.round(amount)}`,crit>1?"crit":"damage");
+ if(attacker.lifesteal&&amount>0){let heal=amount*attacker.lifesteal;attacker.hp=Math.min(attacker.maxHp,attacker.hp+heal);showFloat(attacker,`+${Math.round(heal)}`,"heal")};
  if(target.hp<=0){target.hp=0;target.alive=false}
  return amount;
 }
@@ -532,7 +612,7 @@ function basicAttack(u,t){
  if(u.data.cls==="Duelist"){u.duelStacks=Math.min(8,u.duelStacks+1);u.as=u.baseAS*(1+u.duelStacks*.05)}
 }
 function cast(u,enemies,allies){
- if(!enemies.length)return;u.mana=0;let t=nearest(u,enemies),type=u.data.abilityType;
+ if(!enemies.length)return;u.mana=0;u.status.castFlash=.55;showFloat(u,u.data.ability,"cast");let t=nearest(u,enemies),type=u.data.abilityType;
  if(type==="farStrike"){t=farthest(u,enemies);damage(u,t,u.atk*2.2)}
  else if(type==="shieldAura"){u.shield+=u.maxHp*.32;allies.filter(a=>a.alive&&dist(a,u)<=2).forEach(a=>a.armor+=12)}
  else if(type==="weaken"){damage(u,t,u.atk*1.6);t.status.weaken=4}
@@ -567,9 +647,9 @@ function tickStatuses(u,dt){
  }}
 }
 function runCombat(combat){
- let elapsed=0,dt=.18;
+ let elapsed=0,baseDt=.18;
  const timer=setInterval(()=>{
-  elapsed+=dt;
+  let dt=baseDt*state.combatSpeed;elapsed+=dt;
   for(let u of combat.filter(x=>x.alive)){
    tickStatuses(u,dt);u.cooldown-=dt;
    if(u.status.stun>0)continue;
@@ -586,28 +666,56 @@ function runCombat(combat){
    clearInterval(timer);let result=p.length===e.length?"draw":p.length>e.length?"win":"loss";
    finishBattle(result,p.length,e.length);
   }
- },dt*1000);
+ },baseDt*1000);
 }
+function streakIncome(){return state.streak>=6?3:state.streak>=4?2:state.streak>=2?1:0}
 function finishBattle(result,pSurv,eSurv){
- if(result==="win"){state.wins++;let bonus=state.king.id==="alexander"?1:0;state.gold+=bonus;log(`Victory! ${pSurv} of your units survived.${bonus?" Alexander earns +1g.":""}`,"win");banner("Victory")}
- else if(result==="loss"){state.losses++;let dmg=4+eSurv*2+Math.floor(state.round/5);state.hp=Math.max(0,state.hp-dmg);log(`Defeat. Your crown takes ${dmg} damage.`,"lose");banner("Defeat")}
- else{log("The battle ends in a draw.");banner("Draw")}
+ if(result==="win"){
+  state.wins++;state.streak=state.lastResult==="win"?state.streak+1:1;state.lastResult="win";
+  let bonus=state.king.id==="alexander"?1:0;state.gold+=bonus;log(`Victory! ${pSurv} of your units survived.${bonus?" Alexander earns +1g.":""}`,"win");banner("Victory");
+ } else if(result==="loss"){
+  state.losses++;state.streak=state.lastResult==="loss"?state.streak+1:1;state.lastResult="loss";
+  let dmg=4+eSurv*2+Math.floor(state.round/5);state.hp=Math.max(0,state.hp-dmg);log(`Defeat. Your crown takes ${dmg} damage.`,"lose");banner("Defeat");
+ } else {state.streak=0;state.lastResult=null;log("The battle ends in a draw.");banner("Draw")}
  if(state.king.id==="cleopatra"){
    let civs=new Set(boardUnits().map(o=>dataFor(o.name).civ));if(civs.size>=3){state.gold+=1;log("Diplomatic Court grants +1g.","gold")}
  }
  setTimeout(()=>{
   if(state.hp<=0){$("#gameOverText").textContent=`You survived ${state.round} rounds with ${state.wins} victories.`;$("#gameOver").classList.remove("hidden");return}
-  state.round++;
-  let interest=Math.min(5,Math.floor(state.gold/10)),income=5+interest;state.gold+=income;
-  log(`Round ${state.round}: +5 income${interest?` +${interest} interest`:""}.`,"gold");
-  state.phase="planning";if(!state.locked)reroll(true);else renderAll();renderAll();
+  let completed=state.round;state.round++;
+  let interest=Math.min(5,Math.floor(state.gold/10)),streak=streakIncome(),income=5+interest+streak;state.gold+=income;
+  log(`Round ${state.round}: +5 income${interest?` +${interest} interest`:""}${streak?` +${streak} streak`:""}.`,"gold");
+  if(state.round%3===0)offerRelicChoice();else beginPlanning();
  },900);
+}
+function beginPlanning(){
+ state.phase="planning";prepareEnemy();if(!state.locked)reroll(true);else renderAll();renderAll();
+}
+function relicOptions(){
+ let normal=RELICS.filter(r=>!r.rare),pool=[...normal].sort(()=>Math.random()-.5).slice(0,3);
+ if(state.round>=6&&Math.random()<.28)pool[2]=RELICS.find(r=>r.rare);return pool;
+}
+function offerRelicChoice(){
+ state.phase="relic";renderTop();let opts=relicOptions();$("#relicChoices").innerHTML=opts.map(r=>`<div class="relic-card" data-relic="${r.id}"><div class="big-icon">${r.icon}</div><h3>${r.name}</h3>${r.rare?`<div class="tag">Legendary</div>`:""}<p class="subtle">${r.desc}</p></div>`).join("");
+ $("#relicChoice").classList.remove("hidden");$$('.relic-card').forEach(c=>c.onclick=()=>chooseRelic(c.dataset.relic));
+}
+function chooseRelic(id){state.relics.push(id);$("#relicChoice").classList.add("hidden");log(`Relic acquired: ${relicFor(id).name}.`,"gold");beginPlanning()}
+function renderArmory(){
+ let a=$("#armory");if(!state.relics.length){a.innerHTML=`<span class="subtle" style="font-size:12px">No unequipped relics. A choice appears every 3 rounds.</span>`;return}
+ a.innerHTML=state.relics.map((id,i)=>{let r=relicFor(id);return `<div class="relic-row" data-relic-index="${i}"><div class="relic-icon">${r.icon}</div><div class="relic-info"><b>${r.name}</b><br><span class="subtle">${r.desc}</span></div></div>`}).join("");
+ $$('.relic-row').forEach(x=>x.onclick=()=>equipRelic(+x.dataset.relicIndex));
+}
+function equipRelic(i){
+ if(state.phase!=="planning")return;let o=selectedOwned();if(!o){log("Select a unit before equipping a relic.","lose");return}
+ if(o.relic){log(`${o.name} already carries ${relicFor(o.relic).name}. Sell the unit to recover it.`,"lose");return}
+ o.relic=state.relics.splice(i,1)[0];log(`${o.name} equips ${relicFor(o.relic).name}.`,"gold");renderAll();
 }
 $("#battleBtn").onclick=startBattle;
 $("#rerollBtn").onclick=()=>reroll(false);
 $("#xpBtn").onclick=addXP;
 $("#sellBtn").onclick=sellSelected;
 $("#lockBtn").onclick=()=>{state.locked=!state.locked;renderShop()};
+$("#speedBtn").onclick=()=>{state.combatSpeed=state.combatSpeed===1?2:1;renderTop()};
 renderKings();
 </script>
 </body>
